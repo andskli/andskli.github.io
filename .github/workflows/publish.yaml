@@ -31,4 +31,4 @@ jobs:
         env:
           BUILD_DIR: .
           PAGES_BRANCH: gh-pages
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
