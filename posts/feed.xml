@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+	<title>andskli blog</title>
+	<subtitle>My blog site.</subtitle>
+	<link href="https://andskli.github.io/posts/feed.xml" rel="self" type="application/atom+xml"/>
+    <link href="https://andskli.github.io/posts/"/>
+	<updated>2024-01-26T00:00:00+00:00</updated>
+	<id>https://andskli.github.io/posts/feed.xml</id>
+	<entry xml:lang="en">
+		<title>Hello World!</title>
+		<published>2024-01-26T00:00:00+00:00</published>
+		<updated>2024-01-26T00:00:00+00:00</updated>
+		<link href="https://andskli.github.io/posts/test-post/" type="text/html"/>
+		<id>https://andskli.github.io/posts/test-post/</id>
+		<content type="html">&lt;p&gt;Huh?&lt;&#x2F;p&gt;
+</content>
+	</entry>
+</feed>
