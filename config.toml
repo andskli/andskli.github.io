@@ -1,5 +1,5 @@
 # Let's add some information about the site
-base_url = "https://andskli.github.com"
+base_url = "https://andskli.github.io"
 title = "andskli.github.io"
 description = "andskli's github pages page!"
 default_language = "en"
