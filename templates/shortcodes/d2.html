@@ -1,0 +1,23 @@
+{#-
+  d2 shortcode — embed a pre-built D2 SVG diagram.
+
+  Diagrams are authored as .d2 files alongside posts and pre-rendered to
+  .svg by `make diagrams` (see scripts/build-diagrams.sh). The SVG is
+  referenced like any other static asset. Optional caption.
+
+  Clicking the image opens a same-tab lightbox defined in
+  templates/_head_extend.html (no JS dependencies).
+
+  Usage:
+    {{ d2(src="/img/diagrams/arch.svg", caption="High-level architecture") }}
+    {{ d2(src="/img/diagrams/flow.svg", alt="Request flow diagram") }}
+-#}
+<figure class="d2-diagram">
+  <img src="{{ src }}"
+       alt="{{ alt | default(value=caption | default(value='D2 diagram')) }}"
+       loading="lazy"
+       data-lightbox>
+  {%- if caption %}
+  <figcaption>{{ caption }}</figcaption>
+  {%- endif %}
+</figure>

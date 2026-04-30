@@ -1,2 +1,130 @@
 <script data-goatcounter="https://andskli.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
+
+<style>
+  /* D2 diagrams: break out of the narrow content column so text inside
+     the rendered SVG stays readable. Content column is 768px (see theme
+     --main-max-width); diagrams widen to up to 1100px, clamped to viewport.
+
+     Diagram SVGs are transparent (d2's canvas rect is stripped at build
+     time). We paint a controlled light background on the <figure> itself
+     so text stays readable in both light and dark page themes. */
+  figure.d2-diagram {
+    max-width: min(1100px, 95vw);
+    width: max-content;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    background: #ffffff;
+    border-radius: 6px;
+    padding: 12px;
+    box-sizing: border-box;
+  }
+  figure.d2-diagram img {
+    width: 100%;
+    height: auto;
+    cursor: zoom-in;
+    background: transparent;
+    border-radius: 0;
+  }
+  figure.d2-diagram figcaption {
+    color: #0A0F25;
+  }
+  @media (max-width: 768px) {
+    figure.d2-diagram {
+      margin-left: 0;
+      transform: none;
+      max-width: 100%;
+    }
+  }
+
+  /* Same-tab lightbox overlay for diagrams. No fade — Safari rasterizes
+     SVGs during opacity compositing, which produced a blur on first click. */
+  .lightbox-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.82);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 2vh 2vw;
+    cursor: zoom-out;
+  }
+  .lightbox-overlay svg,
+  .lightbox-overlay img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    box-shadow: 0 8px 48px rgba(0, 0, 0, 0.5);
+    background: #fff;
+    border-radius: 6px;
+    padding: 12px;
+    box-sizing: border-box;
+  }
+  body.lightbox-open { overflow: hidden; }
+</style>
+
+<script>
+  (function () {
+    'use strict';
+
+    function close(overlay) {
+      document.body.classList.remove('lightbox-open');
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }
+
+    function openLightbox(src, alt) {
+      var overlay = document.createElement('div');
+      overlay.className = 'lightbox-overlay';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      overlay.setAttribute('aria-label', alt || 'Diagram at full size');
+      document.body.appendChild(overlay);
+      document.body.classList.add('lightbox-open');
+
+      function onClose() {
+        close(overlay);
+        document.removeEventListener('keydown', onKey);
+      }
+      function onKey(e) { if (e.key === 'Escape') onClose(); }
+      overlay.addEventListener('click', onClose);
+      document.addEventListener('keydown', onKey);
+
+      // Fetch the SVG and inline it so the browser handles it as pure
+      // vector geometry — no raster resampling, no blur during zoom.
+      fetch(src, { credentials: 'same-origin' })
+        .then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); })
+        .then(function (svgText) {
+          // Parse and extract the <svg> element (drops any XML prolog).
+          var doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+          var svg = doc.documentElement;
+          if (!svg || svg.nodeName.toLowerCase() !== 'svg') throw 0;
+          // Reset any fixed width/height so max-width/max-height take over.
+          svg.removeAttribute('width');
+          svg.removeAttribute('height');
+          overlay.appendChild(svg);
+        })
+        .catch(function () {
+          // Fallback to <img> if fetch fails (e.g., file:// protocol).
+          var img = document.createElement('img');
+          img.src = src;
+          img.alt = alt || '';
+          overlay.appendChild(img);
+        });
+    }
+
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (t && t.tagName === 'IMG' && t.hasAttribute('data-lightbox')) {
+        // Stop Lightense (theme-shipped lightbox) from also reacting — it
+        // binds to .prose img and adds a blurred-backdrop zoom animation
+        // that we don't want. Capture phase + stopImmediatePropagation
+        // keeps our handler as the sole responder.
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        openLightbox(t.getAttribute('src'), t.getAttribute('alt'));
+      }
+    }, true);  // capture=true so we run before Lightense's bubbling handler
+  })();
+</script>

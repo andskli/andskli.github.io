@@ -39,6 +39,8 @@ This is not a new idea, but many organizations still struggle with it in practic
 
 If clusters are treated as disposable, that dynamic changes.
 
+{{ d2(src="/img/diagrams/k8s-beyond-a-single-cluster/mental-model.svg", caption="Two mental models: the cluster as the platform vs. the cluster as disposable compute.") }}
+
 One practical consequence appears during cluster upgrades. Instead of upgrading a critical production cluster in place, you can provision a new cluster, deploy the same workloads, and gradually shift traffic to it. If something goes wrong, traffic can simply be shifted back to the old cluster. Once the new environment is stable, the previous cluster can be decommissioned.
 
 In other words, clusters become replaceable infrastructure rather than long-lived platform components.
@@ -67,6 +69,12 @@ Inside a single cluster, these traffic patterns are typically handled differentl
 Once services are discovered through external DNS and exposed through stable endpoints, the patterns begin to converge. Both user traffic and service-to-service traffic can follow the same routing mechanisms.
 This creates a more repeatable architecture. Instead of relying on special cluster-local conventions for internal communication, services interact through the same discovery and routing primitives regardless of where they run.
 In practice, this means that applications become less dependent on cluster-specific networking behavior and more aligned with platform-level service interfaces.
+
+{{ d2(src="/img/diagrams/k8s-beyond-a-single-cluster/ns-ew-convergence.svg", caption="Once discovery is externalized, north–south and east–west traffic follow the same path.") }}
+
+Another practical pattern this unlocks is blue/green cluster cutover: run the old and new clusters side-by-side, shift traffic with weighted DNS, and decommission the old cluster once the new one is stable.
+
+{{ d2(src="/img/diagrams/k8s-beyond-a-single-cluster/blue-green-cutover.svg", caption="Blue/green cluster cutover via weighted DNS, with shared state outside the cluster.") }}
 
 ### State
 
