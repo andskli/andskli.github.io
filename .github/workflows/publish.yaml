@@ -6,6 +6,9 @@ on:
       - main
   pull_request: {}
 
+env:
+  D2_VERSION: v0.7.0
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -13,8 +16,27 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install D2
+        run: |
+          curl -fsSL https://d2lang.com/install.sh | sh -s -- --version "${D2_VERSION#v}"
+          d2 --version
+
+      - name: Build diagrams
+        run: ./scripts/build-diagrams.sh --native
+
+      - name: Check diagrams are up-to-date
+        run: |
+          if ! git diff --quiet -- ':(glob)**/*.svg'; then
+            echo "::error::SVG diagrams are stale. Run 'make diagrams' locally and commit."
+            git diff --stat -- ':(glob)**/*.svg'
+            exit 1
+          fi
+
       - name: Build only
-        uses: shalzz/zola-deploy-action@v0.18.0
+        uses: shalzz/zola-deploy-action@v0.22.1
         env:
           BUILD_DIR: .
           BUILD_ONLY: true
@@ -26,8 +48,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install D2
+        run: |
+          curl -fsSL https://d2lang.com/install.sh | sh -s -- --version "${D2_VERSION#v}"
+          d2 --version
+
+      - name: Build diagrams
+        run: ./scripts/build-diagrams.sh --native
+
       - name: Build and deploy
-        uses: shalzz/zola-deploy-action@v0.18.0
+        uses: shalzz/zola-deploy-action@v0.22.1
         env:
           BUILD_DIR: .
           PAGES_BRANCH: gh-pages

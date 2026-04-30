@@ -1,1 +1,4 @@
 public/
+# Generated at build time by Zola's giallo syntax highlighter
+static/giallo-light.css
+static/giallo-dark.css

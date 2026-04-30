@@ -10,8 +10,8 @@ theme = "serene"
 # Other important configuration
 output_dir = "public"
 
-generate_feed = true
-feed_filename = "feed.xml"
+generate_feeds = true
+feed_filenames = ["feed.xml"]
 
 # Whether to automatically compile all Sass files in the sass directory
 compile_sass = true
@@ -22,15 +22,13 @@ build_search_index = true
 taxonomies = [{ name = "tags" }, { name = "categories" }]
 
 [markdown]
-# Whether to do syntax highlighting
-# Theme can be customised by setting the `highlight_theme` variable to a theme supported by Zola
-highlight_code = true
-highlight_theme = "css"
-extra_syntaxes_and_themes = ["highlight_themes"]
-highlight_themes_css = [
-  { theme = "serene-light", filename = "hl-light.css" },
-  { theme = "serene-dark", filename = "hl-dark.css" },
-]
+# Syntax highlighting: class-based so the light/dark theme switcher works.
+# Zola 0.22+ uses giallo (VSCode-style JSON themes) and generates
+#   /giallo-light.css and /giallo-dark.css at build time.
+[markdown.highlighting]
+style = "class"
+light_theme = "github-light"
+dark_theme = "github-dark"
 render_emoji = false
 external_links_target_blank = false
 external_links_no_follow = true
