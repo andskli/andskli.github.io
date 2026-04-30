@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  
+  <title>404</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
+  <style>
+/* encode-sans-regular - latin */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: 'Encode Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/encode-sans-v19-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+</style>
+
+  <style>
+
+  /* light mode colors */
+  body {
+    --primary-color: #5871a2;
+    --primary-pale-color: #5871a210;
+    --text-color: #3C4043;
+    --text-pale-color: #9b9faa;
+    --bg-color: #ffffff;
+    --highlight-mark-color: #5f75b045;
+
+    --callout-note-color: #5871a2;
+    --callout-important-color: #8062b0;
+    --callout-warning-color: #936e51;
+    --callout-alert-color: #bc5252;
+    --callout-question-color: #477389;
+    --callout-tip-color: #3c8460;
+  }
+
+  /* dark mode colors */
+  body.dark {
+    --primary-color: #5d77ac;
+    --primary-pale-color: #5d77ac20;
+    --text-color: #9197a5;
+    --text-pale-color: #626975;
+    --bg-color: #202124;
+    --highlight-mark-color: #5f75b045;
+
+    --callout-note-color: #5d77ac;
+    --callout-important-color: #8062b0;
+    --callout-warning-color: #936e51;
+    --callout-alert-color: #bc5252;
+    --callout-question-color: #477389;
+    --callout-tip-color: #3c8460;
+  }
+
+  /* typography */
+  body {
+    --main-font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --code-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --homepage-max-width: 768px;
+    --main-max-width: 768px;
+    --avatar-size: 60px;
+    --icon-size: 20px;
+    --homepage-font-size: 16px;
+    --homepage-line-height: 1.75;
+    --paragraph-font-size: 16px;
+    --paragraph-line-height: 1.75;
+    --aside-font-size: 15px;
+    --img-border-radius: 0px;
+    --inline-code-border-radius: 2px;
+    --inline-code-bg-color: var(--primary-pale-color);
+    --block-code-border-radius: 0px;
+    --block-code-border-color: var(--primary-color);
+  }
+
+  /* justified text alignment for post content */
+  .prose p {
+    text-align: justify;
+  }
+
+</style>
+
+  <link rel="stylesheet" href="/main.css">
+  
+  <script data-goatcounter="https://andskli.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+
+<style>
+  /* D2 diagrams: break out of the narrow content column so text inside
+     the rendered SVG stays readable. Content column is 768px (see theme
+     --main-max-width); diagrams widen to up to 1100px, clamped to viewport.
+
+     Diagram SVGs are transparent (d2's canvas rect is stripped at build
+     time). We paint a controlled light background on the <figure> itself
+     so text stays readable in both light and dark page themes. */
+  figure.d2-diagram {
+    max-width: min(1100px, 95vw);
+    width: max-content;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    background: #ffffff;
+    border-radius: 6px;
+    padding: 12px;
+    box-sizing: border-box;
+  }
+  figure.d2-diagram img {
+    width: 100%;
+    height: auto;
+    cursor: zoom-in;
+    background: transparent;
+    border-radius: 0;
+  }
+  figure.d2-diagram figcaption {
+    color: #0A0F25;
+  }
+  @media (max-width: 768px) {
+    figure.d2-diagram {
+      margin-left: 0;
+      transform: none;
+      max-width: 100%;
+    }
+  }
+
+  /* Same-tab lightbox overlay for diagrams. No fade — Safari rasterizes
+     SVGs during opacity compositing, which produced a blur on first click. */
+  .lightbox-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.82);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 2vh 2vw;
+    cursor: zoom-out;
+  }
+  .lightbox-overlay svg,
+  .lightbox-overlay img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    box-shadow: 0 8px 48px rgba(0, 0, 0, 0.5);
+    background: #fff;
+    border-radius: 6px;
+    padding: 12px;
+    box-sizing: border-box;
+  }
+  body.lightbox-open { overflow: hidden; }
+</style>
+
+<script>
+  (function () {
+    'use strict';
+
+    function close(overlay) {
+      document.body.classList.remove('lightbox-open');
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }
+
+    function openLightbox(src, alt) {
+      var overlay = document.createElement('div');
+      overlay.className = 'lightbox-overlay';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      overlay.setAttribute('aria-label', alt || 'Diagram at full size');
+      document.body.appendChild(overlay);
+      document.body.classList.add('lightbox-open');
+
+      function onClose() {
+        close(overlay);
+        document.removeEventListener('keydown', onKey);
+      }
+      function onKey(e) { if (e.key === 'Escape') onClose(); }
+      overlay.addEventListener('click', onClose);
+      document.addEventListener('keydown', onKey);
+
+      // Fetch the SVG and inline it so the browser handles it as pure
+      // vector geometry — no raster resampling, no blur during zoom.
+      fetch(src, { credentials: 'same-origin' })
+        .then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); })
+        .then(function (svgText) {
+          // Parse and extract the <svg> element (drops any XML prolog).
+          var doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+          var svg = doc.documentElement;
+          if (!svg || svg.nodeName.toLowerCase() !== 'svg') throw 0;
+          // Reset any fixed width/height so max-width/max-height take over.
+          svg.removeAttribute('width');
+          svg.removeAttribute('height');
+          overlay.appendChild(svg);
+        })
+        .catch(function () {
+          // Fallback to <img> if fetch fails (e.g., file:// protocol).
+          var img = document.createElement('img');
+          img.src = src;
+          img.alt = alt || '';
+          overlay.appendChild(img);
+        });
+    }
+
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (t && t.tagName === 'IMG' && t.hasAttribute('data-lightbox')) {
+        // Stop Lightense (theme-shipped lightbox) from also reacting — it
+        // binds to .prose img and adds a blurred-backdrop zoom animation
+        // that we don't want. Capture phase + stopImmediatePropagation
+        // keeps our handler as the sole responder.
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        openLightbox(t.getAttribute('src'), t.getAttribute('alt'));
+      }
+    }, true);  // capture=true so we run before Lightense's bubbling handler
+  })();
+</script>
+
+</head>
+
+<body class="not-found">
+  <script>
+    const theme = sessionStorage.getItem('theme');
+    const match = window.matchMedia("(prefers-color-scheme: dark)").matches
+    if ((theme && theme == 'dark') || (!theme && match)) {
+      document.body.classList.add('dark');
+      const hl = document.querySelector('link#hl');
+      if (hl) hl.href = '/giallo-dark.css';
+    }
+  </script>
+  
+<div class="wrapper">
+  <div class="error">
+    <div class="code">404</div>
+    <div class="spacer"></div>
+    <div class="text">Not Found</div>
+  </div>
+  <a class="instant" href="/">« back to home »</a>
+</div>
+
+  
+  <script src="/js/main.js"></script>
+</body>
+
+</html>

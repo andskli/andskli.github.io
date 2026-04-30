@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+	<title>andskli.github.io</title>
+	<subtitle>andskli&#x27;s github pages page!</subtitle>
+	<link href="https://andskli.github.io/feed.xml" rel="self" type="application/atom+xml"/>
+    <link href="https://andskli.github.io"/>
+	<updated>2026-03-17T00:00:00+00:00</updated>
+	<id>https://andskli.github.io/feed.xml</id>
+	<entry xml:lang="en">
+		<title>Kubernetes beyond a single cluster</title>
+		<published>2026-03-17T00:00:00+00:00</published>
+		<updated>2026-03-17T00:00:00+00:00</updated>
+		<link href="https://andskli.github.io/posts/k8s-beyond-a-single-cluster/" type="text/html"/>
+		<id>https://andskli.github.io/posts/k8s-beyond-a-single-cluster/</id>
+		<content type="html">&lt;p&gt;In my day-to-day work, I meet many teams running Kubernetes. A common pattern is to treat a Kubernetes cluster as a single, self-contained unit in their architecture. The cluster becomes the boundary for service discovery, networking, scaling, and sometimes even organizational ownership.&lt;&#x2F;p&gt;
+&lt;p&gt;This works well for a while. Until it doesn’t.&lt;&#x2F;p&gt;
+&lt;p&gt;This post looks at when the single-cluster pattern is perfectly reasonable, and when it starts to become a structural limitation.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;the-everything-cluster-problem&quot;&gt;The “everything cluster” problem&lt;a class=&quot;zola-anchor&quot; href=&quot;#the-everything-cluster-problem&quot; aria-label=&quot;Anchor link for: the-everything-cluster-problem&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;A single cluster is convenient, both operationally and cognitively. But whether you like it or not, it is still a failure domain.&lt;&#x2F;p&gt;
+&lt;p&gt;If everything runs inside one cluster, that cluster becomes the universal context in which your applications operate. Applications rely on patterns that only exist inside the cluster, such as Kubernetes service discovery and cluster-local networking. You gain simplicity, but you lose flexibility.&lt;&#x2F;p&gt;
+&lt;p&gt;Cluster outages become system outages. Scaling limits become tightly coupled to the behavior of a single control plane and its worker nodes. And those scaling properties can change rapidly in multi-tenant environments.&lt;&#x2F;p&gt;
+&lt;p&gt;Imagine a team deploying a queue consumer where each unit of work runs in its own pod. Suddenly hundreds of pods are launching per minute. From the team’s perspective this may look fine, but the behavior now affects the entire cluster: scheduler pressure increases, API server load rises, and node capacity becomes contested.&lt;&#x2F;p&gt;
+&lt;p&gt;The scaling pattern of a single application has now become a platform problem.&lt;&#x2F;p&gt;
+&lt;p&gt;You might say: &lt;em&gt;“That’s fine, we run multiple clusters”&lt;&#x2F;em&gt;. But if clusters are simply partitioned by team or business unit, the fundamental assumption remains unchanged. Each application still treats its cluster as the world. The architectural boundary has not moved — it has just been duplicated.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;a-more-resilient-way-to-think-about-clusters&quot;&gt;A more resilient way to think about clusters&lt;a class=&quot;zola-anchor&quot; href=&quot;#a-more-resilient-way-to-think-about-clusters&quot; aria-label=&quot;Anchor link for: a-more-resilient-way-to-think-about-clusters&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;A more robust mental model is to treat Kubernetes clusters as disposable compute capacity.&lt;&#x2F;p&gt;
+&lt;p&gt;Clusters can appear and disappear without affecting your ability to serve customers. When you design with this assumption, clusters stop being the platform and instead become an implementation detail.&lt;&#x2F;p&gt;
+&lt;p&gt;This is not a new idea, but many organizations still struggle with it in practice. Clusters often accumulate operational gravity over time: upgrades become risky events, migrations require careful planning, and the cluster itself becomes something that teams are afraid to change.&lt;&#x2F;p&gt;
+&lt;p&gt;If clusters are treated as disposable, that dynamic changes.&lt;&#x2F;p&gt;
+
+&lt;figure class=&quot;d2-diagram&quot;&gt;
+  &lt;img src=&quot;&amp;#x2F;img&amp;#x2F;diagrams&amp;#x2F;k8s-beyond-a-single-cluster&amp;#x2F;mental-model.svg&quot;
+       alt=&quot;Two mental models: the cluster as the platform vs. the cluster as disposable compute.&quot;
+       loading=&quot;lazy&quot;
+       data-lightbox&gt;
+  &lt;figcaption&gt;Two mental models: the cluster as the platform vs. the cluster as disposable compute.&lt;&#x2F;figcaption&gt;
+&lt;&#x2F;figure&gt;
+&lt;p&gt;One practical consequence appears during cluster upgrades. Instead of upgrading a critical production cluster in place, you can provision a new cluster, deploy the same workloads, and gradually shift traffic to it. If something goes wrong, traffic can simply be shifted back to the old cluster. Once the new environment is stable, the previous cluster can be decommissioned.&lt;&#x2F;p&gt;
+&lt;p&gt;In other words, clusters become replaceable infrastructure rather than long-lived platform components.
+Designing systems this way has architectural consequences. If clusters are expected to be replaced, service discovery, traffic routing, and state management can no longer depend on cluster-local constructs. Those capabilities must exist outside the cluster boundary so that workloads can run in multiple clusters at the same time.&lt;&#x2F;p&gt;
+&lt;p&gt;Once those concerns are externalized, clusters become far easier to replace, scale, and operate over time.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;traffic-management&quot;&gt;Traffic management&lt;a class=&quot;zola-anchor&quot; href=&quot;#traffic-management&quot; aria-label=&quot;Anchor link for: traffic-management&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;The first thing you run into is service discovery. Inside a cluster, applications typically discover each other through Kubernetes DNS using names like: &lt;code&gt;service.namespace.svc.cluster.local&lt;&#x2F;code&gt;. That mechanism works only within the cluster.&lt;&#x2F;p&gt;
+&lt;p&gt;If your services need to run across multiple clusters — for example during migrations, upgrades, or regional deployments — you need discovery that exists outside Kubernetes.&lt;&#x2F;p&gt;
+&lt;p&gt;In practice, this means introducing a stable DNS layer that is independent of any specific cluster. Applications resolve external service names, and the underlying endpoints can shift between clusters without changing the contract.&lt;&#x2F;p&gt;
+&lt;p&gt;On AWS, this commonly means using services like:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Amazon Route 53&lt;&#x2F;strong&gt; for DNS-based service discovery&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;AWS Application Load Balancers or Network Load Balancers&lt;&#x2F;strong&gt; as stable entry points for services&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;Each cluster can expose workloads behind its own load balancers, while DNS or a global traffic layer determines where traffic ultimately flows. The important shift is that service identity is no longer tied to a cluster.&lt;&#x2F;p&gt;
+&lt;p&gt;Another side effect of externalizing service discovery and traffic routing is that the distinction between north–south and east–west traffic starts to blur.
+Inside a single cluster, these traffic patterns are typically handled differently. North–south traffic enters through load balancers or ingress controllers, while east–west traffic relies on Kubernetes service discovery and cluster-local networking.&lt;&#x2F;p&gt;
+&lt;p&gt;Once services are discovered through external DNS and exposed through stable endpoints, the patterns begin to converge. Both user traffic and service-to-service traffic can follow the same routing mechanisms.
+This creates a more repeatable architecture. Instead of relying on special cluster-local conventions for internal communication, services interact through the same discovery and routing primitives regardless of where they run.
+In practice, this means that applications become less dependent on cluster-specific networking behavior and more aligned with platform-level service interfaces.&lt;&#x2F;p&gt;
+
+&lt;figure class=&quot;d2-diagram&quot;&gt;
+  &lt;img src=&quot;&amp;#x2F;img&amp;#x2F;diagrams&amp;#x2F;k8s-beyond-a-single-cluster&amp;#x2F;ns-ew-convergence.svg&quot;
+       alt=&quot;Once discovery is externalized, north–south and east–west traffic follow the same path.&quot;
+       loading=&quot;lazy&quot;
+       data-lightbox&gt;
+  &lt;figcaption&gt;Once discovery is externalized, north–south and east–west traffic follow the same path.&lt;&#x2F;figcaption&gt;
+&lt;&#x2F;figure&gt;
+&lt;p&gt;Another practical pattern this unlocks is blue&#x2F;green cluster cutover: run the old and new clusters side-by-side, shift traffic with weighted DNS, and decommission the old cluster once the new one is stable.&lt;&#x2F;p&gt;
+
+&lt;figure class=&quot;d2-diagram&quot;&gt;
+  &lt;img src=&quot;&amp;#x2F;img&amp;#x2F;diagrams&amp;#x2F;k8s-beyond-a-single-cluster&amp;#x2F;blue-green-cutover.svg&quot;
+       alt=&quot;Blue&amp;amp;#x2F;green cluster cutover via weighted DNS, with shared state outside the cluster.&quot;
+       loading=&quot;lazy&quot;
+       data-lightbox&gt;
+  &lt;figcaption&gt;Blue&amp;#x2F;green cluster cutover via weighted DNS, with shared state outside the cluster.&lt;&#x2F;figcaption&gt;
+&lt;&#x2F;figure&gt;
+&lt;h3 id=&quot;state&quot;&gt;State&lt;a class=&quot;zola-anchor&quot; href=&quot;#state&quot; aria-label=&quot;Anchor link for: state&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;State is straightforward conceptually, but sometimes harder in practice. The simplest rule is that state should live outside the cluster. Object storage, databases, and queues should exist independently of Kubernetes. Clusters consume these services rather than owning them.&lt;&#x2F;p&gt;
+&lt;p&gt;On AWS this usually means relying on managed services such as:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Amazon S3&lt;&#x2F;li&gt;
+&lt;li&gt;Amazon DynamoDB&lt;&#x2F;li&gt;
+&lt;li&gt;Amazon RDS or Amazon Aurora&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;This separation makes clusters replaceable. A new cluster can come online and immediately connect to the same underlying data services.&lt;&#x2F;p&gt;
+&lt;p&gt;There are exceptions. Some workloads depend on block storage volumes, for example applications using EBS-backed persistent volumes. Databases are the most common example. In those cases, the “disposable cluster” pattern may not apply directly. That is acceptable. Architectural patterns do not need to apply universally to be valuable. If most workloads can be decoupled from cluster lifecycle, the platform becomes significantly more resilient.&lt;&#x2F;p&gt;
+&lt;p&gt;Treat the remaining cases as deliberate exceptions.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;is-it-worth-the-effort&quot;&gt;Is it worth the effort?&lt;a class=&quot;zola-anchor&quot; href=&quot;#is-it-worth-the-effort&quot; aria-label=&quot;Anchor link for: is-it-worth-the-effort&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;In many cases, yes.&lt;&#x2F;p&gt;
+&lt;p&gt;The goal is not complexity for its own sake. The goal is to avoid making a Kubernetes cluster the highest-level abstraction in your architecture. This approach does introduce additional moving parts. You need external service discovery, consistent networking across clusters, and deployment pipelines capable of targeting multiple environments. However, these concerns are generally easier to manage than treating a single cluster as the critical foundation of the entire platform.&lt;&#x2F;p&gt;
+&lt;p&gt;When clusters become the platform, everything becomes harder: upgrades, migrations, scaling, and regional expansion. When clusters are just compute capacity, the platform moves to a higher level — networking, DNS, identity, and managed services. Kubernetes simply becomes one way of consuming that platform.&lt;&#x2F;p&gt;
+&lt;p&gt;For many applications, that is exactly the role it should play.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;practical-suggestions&quot;&gt;Practical suggestions&lt;a class=&quot;zola-anchor&quot; href=&quot;#practical-suggestions&quot; aria-label=&quot;Anchor link for: practical-suggestions&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;If you want to move toward this model incrementally, a few changes can make a significant difference.&lt;&#x2F;p&gt;
+&lt;p&gt;First, introduce DNS-based service discovery that is independent of Kubernetes. Services should resolve stable DNS names rather than cluster-local service names.&lt;&#x2F;p&gt;
+&lt;p&gt;Second, expose services through managed load balancers instead of relying solely on Kubernetes service networking. On AWS, Application Load Balancers and Network Load Balancers provide stable endpoints that can front services running in multiple clusters.&lt;&#x2F;p&gt;
+&lt;p&gt;Third, move state out of the cluster wherever possible. Managed storage and database services dramatically simplify cluster lifecycle management.&lt;&#x2F;p&gt;
+&lt;p&gt;Finally, assume that clusters will be replaced. Design deployment pipelines and infrastructure so that creating a new cluster is routine rather than exceptional.&lt;&#x2F;p&gt;
+&lt;p&gt;Once that becomes normal, Kubernetes clusters stop being fragile infrastructure and start behaving like what they really are: replaceable compute capacity.&lt;&#x2F;p&gt;
+</content>
+	</entry>
+	<entry xml:lang="en">
+		<title>Hello World!</title>
+		<published>2024-01-26T00:00:00+00:00</published>
+		<updated>2024-01-26T00:00:00+00:00</updated>
+		<link href="https://andskli.github.io/posts/test-post/" type="text/html"/>
+		<id>https://andskli.github.io/posts/test-post/</id>
+		<content type="html">&lt;p&gt;Huh?&lt;&#x2F;p&gt;
+</content>
+	</entry>
+</feed>
