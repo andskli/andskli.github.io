@@ -35,6 +35,11 @@ jobs:
             exit 1
           fi
 
+      - name: Generate social cards
+        run: |
+          pip install --quiet Pillow
+          python3 scripts/generate-social-cards.py
+
       - name: Build only
         uses: shalzz/zola-deploy-action@v0.22.1
         env:
@@ -58,6 +63,11 @@ jobs:
 
       - name: Build diagrams
         run: ./scripts/build-diagrams.sh --native
+
+      - name: Generate social cards
+        run: |
+          pip install --quiet Pillow
+          python3 scripts/generate-social-cards.py
 
       - name: Build and deploy
         uses: shalzz/zola-deploy-action@v0.22.1

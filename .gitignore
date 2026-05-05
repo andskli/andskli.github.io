@@ -2,3 +2,5 @@ public/
 # Generated at build time by Zola's giallo syntax highlighter
 static/giallo-light.css
 static/giallo-dark.css
+# Generated at build time by scripts/generate-social-cards.py
+static/img/social-cards/
