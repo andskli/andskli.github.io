@@ -7,17 +7,21 @@
 <meta property="article:published_time" content="{{ page.date | date(format='%Y-%m-%d') }}">
 {% if page.updated %}<meta property="article:modified_time" content="{{ page.updated | date(format='%Y-%m-%d') }}">{% endif %}
 <meta property="article:author" content="{{ config.extra.name }}">
-<meta name="twitter:card" content="summary">
+{% if page.extra.og_image %}<meta property="og:image" content="{{ config.base_url }}{{ page.extra.og_image }}">{% else %}<meta property="og:image" content="{{ config.base_url }}/img/social-card-default.png">{% endif %}
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ page.title }}">
 {% if page.description %}<meta name="twitter:description" content="{{ page.description }}">{% elif page.summary %}<meta name="twitter:description" content="{{ page.summary }}">{% endif %}
+{% if page.extra.og_image %}<meta name="twitter:image" content="{{ config.base_url }}{{ page.extra.og_image }}">{% else %}<meta name="twitter:image" content="{{ config.base_url }}/img/social-card-default.png">{% endif %}
 {% else %}
 <meta property="og:type" content="website">
 <meta property="og:title" content="{{ config.title }}">
 <meta property="og:description" content="{{ config.description }}">
 <meta property="og:url" content="{{ config.base_url }}">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="{{ config.base_url }}/img/social-card-default.png">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ config.title }}">
 <meta name="twitter:description" content="{{ config.description }}">
+<meta name="twitter:image" content="{{ config.base_url }}/img/social-card-default.png">
 {% endif %}
 <meta property="og:site_name" content="{{ config.title }}">
 

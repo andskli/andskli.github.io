@@ -8,6 +8,7 @@ tags = ["kubernetes", "AWS"]
 [extra]
 toc = false
 cc_license = false
+og_image = "/img/social-card-k8s-beyond.png"
 +++
 
 In my day-to-day work, I meet many teams running Kubernetes. A common pattern is to treat a Kubernetes cluster as a single, self-contained unit in their architecture. The cluster becomes the boundary for service discovery, networking, scaling, and sometimes even organizational ownership.
