@@ -1,6 +1,7 @@
 +++
 title = "Kubernetes beyond a single cluster"
 date = 2026-03-17
+description = "When the single-cluster pattern becomes a structural limitation, and how treating clusters as disposable compute — with service discovery, traffic management, and state living outside — changes the game."
 [taxonomies]
 categories = ["kubernetes", "AWS"]
 tags = ["kubernetes", "AWS"]
