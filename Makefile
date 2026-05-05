@@ -20,7 +20,13 @@ diagrams-check:
 serve: diagrams
 	$(ZOLA_CMD) serve --interface 0.0.0.0 --port 8080 --base-url localhost --drafts
 
-build: diagrams
+build: diagrams social-cards
 	$(ZOLA_CMD) build
 
-.PHONY: init diagrams diagrams-force diagrams-check serve build
+social-cards:
+	python3 scripts/generate-social-cards.py
+
+social-cards-force:
+	python3 scripts/generate-social-cards.py --force
+
+.PHONY: init diagrams diagrams-force diagrams-check serve build social-cards social-cards-force
