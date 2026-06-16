@@ -1,0 +1,36 @@
+# Train-the-trainer flywheel — a self-reinforcing enablement loop
+direction: right
+
+pt: "Platform team\nauthors + maintains the labs" {
+  style.fill: "#fef3c7"
+  style.font-color: "#0A0F25"
+}
+
+flywheel: "Train-the-trainer flywheel" {
+  style.fill: "#f8fafc"
+  style.font-color: "#0A0F25"
+  style.stroke: "#94a3b8"
+
+  cohort: "A cohort works\nthrough the labs" {
+    style.fill: "#dbeafe"
+    style.font-color: "#0A0F25"
+  }
+  grads: "Graduates become\ninternal trainers" {
+    style.fill: "#dcfce7"
+    style.font-color: "#0A0F25"
+  }
+  next: "They run the\nnext cohort" {
+    style.fill: "#ede9fe"
+    style.font-color: "#0A0F25"
+  }
+
+  cohort -> grads: "graduate"
+  grads -> next: "teach"
+  next -> cohort: "each turn scales,\nless platform-team load" {
+    style.stroke-dash: 3
+  }
+}
+
+pt -> flywheel.cohort: "seeds + supports" {
+  style.stroke-dash: 3
+}

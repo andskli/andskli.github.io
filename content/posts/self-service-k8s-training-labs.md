@@ -40,6 +40,8 @@ The Blueprint feature is what makes this work for training labs. Instead of hand
 
 Blueprints are CloudFormation StackSets, but the infrastructure you actually want to stand up — the opinionated EKS configuration that defines how Kubernetes runs at your company — is rarely written purely in CloudFormation. It's more likely Terraform, CDK, or Pulumi: the same modules you already use to provision production clusters, with their networking policies, add-ons, RBAC defaults, and observability stacks. We bridge that gap with a thin CloudFormation wrapper that bootstraps a CodeBuild project to run *any* provisioning code when the lease is granted.
 
+{{ d2(src="/img/diagrams/self-service-k8s-training-labs/building-blocks.svg", caption="Each layer builds on the one below — Innovation Sandbox on AWS vends the account, a Blueprint deploys the CodeBuild shim, and the shim applies your Terraform.") }}
+
 The Blueprint StackSet deploys a handful of resources ([example template](https://github.com/andskli/innovation-sandbox-eks-example-blueprint)), importantly:
 
 1. **IAM role** — the CodeBuild execution role that runs your provisioning code. The example template ships with broader permissions than any single lab needs, to stay lab- and tool-agnostic; for production, scope it down to what your lab actually provisions. [IAM Access Analyzer policy generation](https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-policy-generation.html) can produce a least-privilege policy from the role's CloudTrail activity after a representative run.
@@ -123,6 +125,8 @@ Self-service labs solve the "I need a sandbox" problem, but someone still needs 
 2. **First cohort** of product developers goes through the labs with platform team support
 3. **Graduates** from the first cohort become internal trainers for their own teams
 4. **Platform team** shifts to content maintenance and trainer certification
+
+{{ d2(src="/img/diagrams/self-service-k8s-training-labs/flywheel.svg", caption="The self-reinforcing loop: each cohort's graduates become the next cohort's trainers, seeded once by the platform team.") }}
 
 That's the flywheel: each cohort trains the next, so enablement scales with the organization instead of bottlenecking on the platform team's calendar.
 
