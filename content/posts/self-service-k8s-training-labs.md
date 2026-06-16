@@ -34,11 +34,11 @@ You could build this account-vending machine yourself, but it's undifferentiated
 - **Lease:** A time-boxed assignment of an account to a user, with SSO access.
 - **Lease template:** Governance rules — duration, approval workflow.
 - **Blueprint:** A CloudFormation StackSet that deploys infrastructure into the account when a lease is granted.
-- **Cleanup:** When the lease ends, Innovation Sandbox on AWS recycles the account with its Account Cleaner — a multi-pass [`aws-nuke`](https://github.com/ekristen/aws-nuke) sweep — and returns it to the pool. (The blueprint is *not* gracefully deleted first; see [Teardown](#teardown).)
+- **Cleanup:** When the lease ends, Innovation Sandbox on AWS recycles the account with its Account Cleaner — a multi-pass [`aws-nuke`](https://github.com/ekristen/aws-nuke) sweep — and returns it to the pool. The blueprint is _not_ gracefully deleted first; see [Teardown](#teardown).
 
 The Blueprint feature is what makes this work for training labs. Instead of handing learners a blank account and a piece of paper with some documentation, you give them an account that already has the lab infrastructure running.
 
-Blueprints are CloudFormation StackSets, but the infrastructure you actually want to stand up — the opinionated EKS configuration that defines how Kubernetes runs at your company — is rarely written purely in CloudFormation. It's more likely Terraform, CDK, or Pulumi: the same modules you already use to provision production clusters, with their networking policies, add-ons, RBAC defaults, and observability stacks. We bridge that gap with a thin CloudFormation wrapper that bootstraps a CodeBuild project to run *any* provisioning code when the lease is granted.
+Blueprints are CloudFormation StackSets, but the infrastructure you actually want to stand up — the opinionated EKS configuration that defines how Kubernetes runs at your company — is rarely written purely in CloudFormation. It's more likely Terraform, CDK, or Pulumi: the same modules you already use to provision production clusters, with their networking policies, add-ons, RBAC defaults, and observability stacks. We bridge that gap with a thin CloudFormation wrapper that bootstraps a CodeBuild project to run _any_ provisioning code when the lease is granted.
 
 {{ d2(src="/img/diagrams/self-service-k8s-training-labs/building-blocks.svg", caption="Each layer builds on the one below — Innovation Sandbox on AWS vends the account, a Blueprint deploys the CodeBuild shim, and the shim applies your Terraform.") }}
 
@@ -46,8 +46,8 @@ The Blueprint StackSet deploys a handful of resources ([example template](https:
 
 1. **IAM role** — the CodeBuild execution role that runs your provisioning code. The example template ships with broader permissions than any single lab needs, to stay lab- and tool-agnostic; for production, scope it down to what your lab actually provisions. [IAM Access Analyzer policy generation](https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-policy-generation.html) can produce a least-privilege policy from the role's CloudTrail activity after a representative run.
 2. **Workspace bucket** (custom resource) — manages an S3 bucket in the sandbox account for working state (e.g., Terraform state) or other lease-scoped scratch space. Creates the bucket on stack creation and handles clean deletion on stack teardown.
-3. **CodeBuild project** — runs your provisioning code. The lab lifecycle only needs the provisioning path (`buildspec-create.yml`); a `buildspec-destroy.yml` also ships for manual teardown (see [Teardown](#teardown)). Source is an S3 artifact bundle (zip) in a central bucket *you* create and populate — Innovation Sandbox on AWS doesn't provision it; you point the Blueprint's `SourceBucket`/`SourceKey` parameters at an artifact your CI publishes. Because CodeBuild runs *in the sandbox account*, reading that bucket is a cross-account operation — see [Getting the source into the sandbox account](#getting-the-source-into-the-sandbox-account) for how to grant it safely. No VCS connectivity is required in the sandbox accounts.
-4. **Lab provisioner** (custom resource) — on stack CREATE it triggers a Step Functions state machine that starts CodeBuild, polls for completion, and reports the result back to CloudFormation. (The DELETE path runs the same way for manual teardown; Innovation Sandbox on AWS recycles with aws-nuke instead — see [Teardown](#teardown).) UPDATE is a no-op: lab infrastructure is immutable, and Innovation Sandbox on AWS never updates a deployed blueprint mid-lease — to change it, recycle the account and re-lease.
+3. **CodeBuild project** — runs your provisioning code. The lab lifecycle only needs the provisioning path (`buildspec-create.yml`); a `buildspec-destroy.yml` also ships for manual teardown (see [Teardown](#teardown)). Source is an S3 artifact bundle (zip) in a central bucket _you_ create and populate — Innovation Sandbox on AWS doesn't provision it; you point the Blueprint's `SourceBucket`/`SourceKey` parameters at an artifact your CI publishes. Because CodeBuild runs _in the sandbox account_, reading that bucket is a cross-account operation — see [Getting the source into the sandbox account](#getting-the-source-into-the-sandbox-account) for how to grant it safely. No VCS connectivity is required in the sandbox accounts.
+4. **Lab provisioner** (custom resource) — on stack CREATE it triggers a Step Functions state machine that starts CodeBuild, polls for completion, and reports the result back to CloudFormation. The DELETE path runs the same way for manual teardown, though Innovation Sandbox on AWS recycles with aws-nuke instead — see [Teardown](#teardown). UPDATE is a no-op: lab infrastructure is immutable, and Innovation Sandbox on AWS never updates a deployed blueprint mid-lease — to change it, recycle the account and re-lease.
 
 Step Functions handles the wait because infrastructure provisioning can take longer than Lambda's 15-minute maximum execution time. The pattern is agnostic to what runs inside CodeBuild — Terraform, CDK, Pulumi, or a plain bash script.
 
@@ -71,7 +71,7 @@ The workflow then looks something like this:
 
 ## Getting the source into the sandbox account
 
-CodeBuild runs *inside the leased sandbox account*, but your provisioning code lives in a central bucket. Because sandbox accounts are deliberately low-trust — learners often have broad permissions inside them — the source distribution has to be read-only, scoped, and private.
+CodeBuild runs _inside the leased sandbox account_, but your provisioning code lives in a central bucket. Because sandbox accounts are deliberately low-trust — learners often have broad permissions inside them — the source distribution has to be read-only, scoped, and private.
 
 Keep a zip file containing the source for your infrastructure module in a bucket in your hub account (where Innovation Sandbox on AWS itself runs), and grant cross-account read with an OU-scoped bucket policy:
 
@@ -95,10 +95,10 @@ Note: if you'd rather grant the entire organization, swap `aws:PrincipalOrgPaths
 
 A couple of details matter here:
 
-- **Encryption.** If the bucket is SSE-KMS, cross-account reads *also* need the KMS key policy to grant `kms:Decrypt` to the same principals — the bucket policy alone isn't enough. SSE-S3 (AES256) avoids that second grant entirely; use it unless a customer-managed key is mandated.
-- **Versioning.** Name each source zip with a semantic version — `eks-blueprint-1.4.2.zip` — and have every Blueprint reference an exact version key. Publishing `1.5.0` then leaves in-flight leases untouched; you roll a lab forward by bumping the version its Blueprint points at, never by overwriting a `latest` key. (S3 object versioning works too, but version-stamped keys are easier to pin from a manifest and reason about.)
+- **Encryption.** If the bucket is SSE-KMS, cross-account reads _also_ need the KMS key policy to grant `kms:Decrypt` to the same principals — the bucket policy alone isn't enough. SSE-S3 (AES256) avoids that second grant entirely; use it unless a customer-managed key is mandated.
+- **Versioning.** Name each source zip with a semantic version — `eks-blueprint-1.4.2.zip` — and have every Blueprint reference an exact version key. Publishing `1.5.0` then leaves in-flight leases untouched; you roll a lab forward by bumping the version its Blueprint points at, never by overwriting a `latest` key. S3 object versioning works too, but version-stamped keys are easier to pin from a manifest and reason about.
 
-The source is infrastructure code, not secrets, and the grant is read-only, scoped to a single bucket, and limited to the sandbox OU — so even the broad permissions learners hold *inside* a sandbox account don't widen it.
+The source is infrastructure code, not secrets, and the grant is read-only, scoped to a single bucket, and limited to the sandbox OU — so even the broad permissions learners hold _inside_ a sandbox account don't widen it.
 
 It's worth asking whether the state bucket should live in a central account so it survives account cleanup — for this pattern, it shouldn't. The state is only needed during the lease: `terraform apply` writes it on provisioning, and when the lease ends the Account Cleaner's `aws-nuke` sweep deletes the bucket along with everything else in the account. The same holds for any tool that keeps state — keep it in-account. That avoids cross-account IAM, a central tooling account to maintain, and orphaned state files from expired leases. The state is as ephemeral as the lab itself.
 
@@ -115,7 +115,7 @@ So why does the example still ship a `buildspec-destroy.yml` and a Delete handle
 
 ## Lab instructions
 
-The blueprint provisions the *environment* — it doesn't ship the lab guide. Delivering the actual exercises, the steps a learner follows, is out of scope for the pattern, and you almost certainly already have a home for it: an internal wiki, your existing docs platform, or wherever your team keeps its runbooks. Author the instructions there and point learners at their leased account. Keeping the teaching material in the docs tooling you already run means it inherits whatever review and versioning you already have, instead of bolting a new system onto the blueprint.
+The blueprint provisions the _environment_ — it doesn't ship the lab guide. Delivering the actual exercises, the steps a learner follows, is out of scope for the pattern, and you almost certainly already have a home for it: an internal wiki, your existing docs platform, or wherever your team keeps its runbooks. Author the instructions there and point learners at their leased account. Keeping the teaching material in the docs tooling you already run means it inherits whatever review and versioning you already have, instead of bolting a new system onto the blueprint.
 
 ## Making the flywheel spin
 
@@ -133,6 +133,7 @@ That's the flywheel: each cohort trains the next, so enablement scales with the 
 ## Summary
 
 The pattern:
+
 - **Innovation Sandbox on AWS** manages the account pool, leases, and lifecycle
 - **Blueprints** (CFN StackSets) are thin shims that orchestrate CodeBuild via Step Functions
 - **CodeBuild** runs any provisioning/teardown code — Terraform, CDK, Pulumi, or scripts
