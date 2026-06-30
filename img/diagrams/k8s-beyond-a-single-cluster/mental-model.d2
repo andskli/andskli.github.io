@@ -1,0 +1,63 @@
+direction: right
+
+platform: "Cluster as the platform" {
+  style: {
+    stroke-dash: 3
+    fill: "#fef3c7"
+    font-color: "#0A0F25"
+  }
+
+  cluster: "EKS cluster" {
+    shape: rectangle
+    discovery: "Service discovery\n(cluster-local DNS)"
+    ingress: "Ingress\n(cluster-scoped)"
+    state: "State\n(PVs, in-cluster DB)"
+    apps: "Applications"
+  }
+
+  note: |md
+    Cluster outage = system outage.
+    Upgrades and migrations are risky events.
+  | {
+    style.font-size: 14
+    style.font-color: "#0A0F25"
+  }
+}
+
+compute: "Cluster as disposable compute" {
+  style: {
+    stroke-dash: 3
+    fill: "#dbeafe"
+    font-color: "#0A0F25"
+  }
+
+  edge: "Route 53  ·  ALB / NLB" {
+    shape: cloud
+  }
+
+  a: "EKS cluster A" {
+    shape: rectangle
+    apps_a: "Applications"
+  }
+  b: "EKS cluster B" {
+    shape: rectangle
+    apps_b: "Applications"
+  }
+
+  state: "S3  ·  RDS / Aurora  ·  DynamoDB" {
+    shape: cylinder
+  }
+
+  edge -> a.apps_a: "traffic"
+  edge -> b.apps_b: "traffic"
+  a.apps_a -> state
+  b.apps_b -> state
+
+  note: |md
+    Clusters are replaceable.
+    Identity lives outside the cluster.
+  | {
+    style.font-size: 14
+    style.font-color: "#0A0F25"
+  }
+}
