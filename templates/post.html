@@ -9,13 +9,13 @@
 {%- endblock lang %}
 {% block title %}{{ page.title }}{% endblock title %}
 {% block desc %}
-  {% if page.summary %}
-    {% set desc = page.summary %}
-  {% elif page.description %}
+  {% if page.description %}
     {% set desc = page.description %}
+  {% elif page.summary %}
+    {% set desc = page.summary %}
   {% endif %}
   {% if desc %}
-  <meta name="description" content="{{ desc }}">
+  <meta name="description" content="{{ desc | striptags | trim }}">
   {% endif %}
 {% endblock desc %}
 

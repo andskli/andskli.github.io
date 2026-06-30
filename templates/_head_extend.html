@@ -1,3 +1,47 @@
+<!-- Google Search Console verification -->
+<meta name="google-site-verification" content="4Je7COz5y6IByuqSl-txaJCft_H6M7s6p5mo2hSNxa0">
+
+<!-- Canonical URL -->
+{% if page is defined %}{% set canonical = page.permalink %}
+{% elif section is defined %}{% set canonical = section.permalink %}
+{% elif term is defined %}{% set canonical = term.permalink %}
+{% else %}{% set canonical = config.base_url %}{% endif %}
+<link rel="canonical" href="{{ canonical | safe }}">
+
+<!-- JSON-LD structured data (BlogPosting) -->
+{% if page is defined %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": {{ page.title | json_encode | safe }},
+  {% if page.description %}"description": {{ page.description | json_encode | safe }},
+  {% elif page.summary %}"description": {{ page.summary | striptags | trim | json_encode | safe }},
+  {% endif %}"datePublished": "{{ page.date | date(format='%Y-%m-%d') }}",
+  {% if page.updated %}"dateModified": "{{ page.updated | date(format='%Y-%m-%d') }}",
+  {% endif %}"url": {{ page.permalink | json_encode | safe }},
+  "mainEntityOfPage": { "@type": "WebPage", "@id": {{ page.permalink | json_encode | safe }} },
+  {% if page.extra.og_image %}{% set img_path = page.extra.og_image %}{% else %}{% set img_path = "/img/social-card-default.png" %}{% endif %}
+  {% set img_url = config.base_url ~ img_path %}
+  "image": {{ img_url | json_encode | safe }},
+  "author": {
+    "@type": "Person",
+    "name": {{ config.extra.name | json_encode | safe }},
+    "url": {{ config.base_url | json_encode | safe }},
+    "sameAs": [
+      "https://github.com/andskli",
+      "https://www.linkedin.com/in/andskli",
+      "https://twitter.com/andskli"
+    ]
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": {{ config.extra.name | json_encode | safe }}
+  }
+}
+</script>
+{% endif %}
+
 <!-- Open Graph / Twitter Card -->
 {% if page is defined %}
 <meta property="og:type" content="article">

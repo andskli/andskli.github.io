@@ -1,6 +1,7 @@
 +++
 title = "Self-service Kubernetes training labs with Innovation Sandbox on AWS"
 date = 2026-06-11
+description = "Build self-service Kubernetes training labs with Innovation Sandbox on AWS and Terraform — vend dedicated EKS accounts that reset themselves on lease expiry."
 draft = false
 [taxonomies]
 categories = ["kubernetes", "AWS"]
