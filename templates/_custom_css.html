@@ -8,6 +8,7 @@
     --text-pale-color: #9b9faa;
     --bg-color: #ffffff;
     --highlight-mark-color: #5f75b045;
+    --menu-border-color: #cdd5e3;
 
     --callout-note-color: #5871a2;
     --callout-important-color: #8062b0;
@@ -25,6 +26,7 @@
     --text-pale-color: #626975;
     --bg-color: #202124;
     --highlight-mark-color: #5f75b045;
+    --menu-border-color: #465061;
 
     --callout-note-color: #5d77ac;
     --callout-important-color: #8062b0;
@@ -52,6 +54,41 @@
     --inline-code-bg-color: var(--primary-pale-color);
     --block-code-border-radius: 0px;
     --block-code-border-color: var(--primary-color);
+  }
+
+  /* Keep the primary destinations distinct from text links and social icons.
+     The extra classes override the theme without changing its upstream stylesheet. */
+  body.homepage #links #left.site-menu {
+    gap: 0.75rem;
+    max-width: 100%;
+  }
+
+  body.homepage #links #left > .menu-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 44px;
+    max-width: 100%;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--menu-border-color);
+    border-radius: 8px;
+    background-color: var(--primary-pale-color);
+    line-height: 1.4;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  body.homepage #links #left > .menu-link:hover,
+  body.homepage #links #left > .menu-link:focus-visible {
+    color: var(--text-color);
+    border-color: var(--primary-color);
+    background-color: var(--highlight-mark-color);
+  }
+
+  body.homepage #links #left > .menu-link:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 3px;
   }
 
   /* justified text alignment for post content */
