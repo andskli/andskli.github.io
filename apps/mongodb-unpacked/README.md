@@ -23,7 +23,7 @@ Preview the production build at http://127.0.0.1:4173/mongodb-unpacked/.
 
 ## Zola integration
 
-From the repository root, `make mongodb-unpacked` installs locked dependencies, runs tests, and builds into `static/mongodb-unpacked/` using `npm run build:site`. The local `make build` / `make serve` targets and both GitHub Actions jobs run this automatically before Zola. Generated output is ignored by Git; edit and commit the source here.
+From the repository root, `make mongodb-unpacked` installs locked dependencies, checks formatting, runs tests, and builds into `static/mongodb-unpacked/` using `npm run build:site`. The shared `make apps` target includes this app; `make build`, `make serve`, and both GitHub Actions jobs use it before Zola. Generated output is ignored by Git; edit and commit the source here.
 
 `vite.config.ts` sets the deployment base to `/mongodb-unpacked/`. The default `npm run build` still writes to `dist/`, which can be hosted under `/mongodb-unpacked/` on any static web server. No database or application backend is required. Serve it over HTTP rather than opening `index.html` as a file. The UI uses Google Fonts when available and system font fallbacks otherwise.
 

@@ -17,13 +17,16 @@ diagrams-force:
 diagrams-check:
 	./scripts/build-diagrams.sh --check
 
+# Add each standalone app's build target here so local and CI builds include it.
+apps: mongodb-unpacked
+
 mongodb-unpacked:
 	./scripts/build-mongodb-unpacked.sh
 
-serve: diagrams mongodb-unpacked
+serve: diagrams apps
 	$(ZOLA_CMD) serve --interface 0.0.0.0 --port 8080 --base-url localhost --drafts
 
-build: diagrams social-cards mongodb-unpacked
+build: diagrams social-cards apps
 	$(ZOLA_CMD) build
 
 social-cards:
@@ -32,4 +35,4 @@ social-cards:
 social-cards-force:
 	python3 scripts/generate-social-cards.py --force
 
-.PHONY: init mongodb-unpacked diagrams diagrams-force diagrams-check serve build social-cards social-cards-force
+.PHONY: init apps mongodb-unpacked diagrams diagrams-force diagrams-check serve build social-cards social-cards-force

@@ -24,10 +24,10 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-          cache-dependency-path: apps/mongodb-unpacked/package-lock.json
+          cache-dependency-path: 'apps/*/package-lock.json'
 
-      - name: Build MongoDB Unpacked
-        run: ./scripts/build-mongodb-unpacked.sh
+      - name: Build apps
+        run: make apps
 
       - name: Install D2
         run: |
@@ -71,10 +71,10 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-          cache-dependency-path: apps/mongodb-unpacked/package-lock.json
+          cache-dependency-path: 'apps/*/package-lock.json'
 
-      - name: Build MongoDB Unpacked
-        run: ./scripts/build-mongodb-unpacked.sh
+      - name: Build apps
+        run: make apps
 
       - name: Install D2
         run: |
