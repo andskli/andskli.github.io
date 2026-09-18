@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+	<title>andskli blog</title>
+	<subtitle>My blog site.</subtitle>
+	<link href="https://andskli.github.io/posts/feed.xml" rel="self" type="application/atom+xml"/>
+    <link href="https://andskli.github.io/posts/"/>
+	<updated>2026-06-11T00:00:00+00:00</updated>
+	<id>https://andskli.github.io/posts/feed.xml</id>
+	<entry xml:lang="en">
+		<title>Self-service Kubernetes training labs with Innovation Sandbox on AWS</title>
+		<published>2026-06-11T00:00:00+00:00</published>
+		<updated>2026-06-11T00:00:00+00:00</updated>
+        <summary>&lt;p&gt;If you run a platform team that provides Kubernetes to product developers, chances are that you have hit this problem: your team becomes the bottleneck for onboarding. Developers need hands-on experience with your platform, but you can&#x27;t run workshops every week, and even if you do, you need tooling to help facilitate learning in a safe, hands-on environment.&lt;&#x2F;p&gt;
+&lt;p&gt;This post describes a pattern for building self-service Kubernetes training labs using &lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;aws.amazon.com&#x2F;solutions&#x2F;implementations&#x2F;innovation-sandbox-on-aws&#x2F;&quot;&gt;Innovation Sandbox on AWS&lt;&#x2F;a&gt;, Terraform, and a thin CloudFormation shim. The result: learners request a lab and get a dedicated account in minutes — running the EKS setup you actually ship, not a generic cluster — and the account is automatically cleaned up when they&#x27;re done.&lt;&#x2F;p&gt;</summary>
+		<link href="https://andskli.github.io/posts/self-service-k8s-training-labs/" type="text/html"/>
+		<id>https://andskli.github.io/posts/self-service-k8s-training-labs/</id>
+		<content type="html">&lt;p&gt;If you run a platform team that provides Kubernetes to product developers, chances are that you have hit this problem: your team becomes the bottleneck for onboarding. Developers need hands-on experience with your platform, but you can&#x27;t run workshops every week, and even if you do, you need tooling to help facilitate learning in a safe, hands-on environment.&lt;&#x2F;p&gt;
+&lt;p&gt;This post describes a pattern for building self-service Kubernetes training labs using &lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;aws.amazon.com&#x2F;solutions&#x2F;implementations&#x2F;innovation-sandbox-on-aws&#x2F;&quot;&gt;Innovation Sandbox on AWS&lt;&#x2F;a&gt;, Terraform, and a thin CloudFormation shim. The result: learners request a lab and get a dedicated account in minutes — running the EKS setup you actually ship, not a generic cluster — and the account is automatically cleaned up when they&#x27;re done.&lt;&#x2F;p&gt;
+&lt;span id=&quot;continue-reading&quot;&gt;&lt;&#x2F;span&gt;&lt;h2 id=&quot;the-problem&quot;&gt;The problem&lt;a class=&quot;zola-anchor&quot; href=&quot;#the-problem&quot; aria-label=&quot;Anchor link for: the-problem&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;Platform teams that run Kubernetes internally face a scaling challenge with developer enablement:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Documentation isn&#x27;t enough.&lt;&#x2F;strong&gt; Developers need to break things in a real cluster to learn. Hands-on experience beats reading docs.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;You can&#x27;t be in every room.&lt;&#x2F;strong&gt; Running instructor-led workshops doesn&#x27;t scale past a handful of sessions per year.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Shared environments create more problems than they solve.&lt;&#x2F;strong&gt; Learners step on each other, leftover resources accumulate, and the environment drifts from its intended state. By the time the next cohort arrives, nothing works like the instructions describe — and troubleshooting someone else&#x27;s leftovers isn&#x27;t the learning experience you designed.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;What you want is a vending machine for sandbox AWS accounts: a developer requests a lab, gets a dedicated AWS account with the infrastructure that&#x27;s part of the lab, does the exercises, and the account resets itself when the lease expires.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;the-building-blocks&quot;&gt;The building blocks&lt;a class=&quot;zola-anchor&quot; href=&quot;#the-building-blocks&quot; aria-label=&quot;Anchor link for: the-building-blocks&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;You could build this account-vending machine yourself, but it&#x27;s undifferentiated heavy lifting. &lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;aws.amazon.com&#x2F;solutions&#x2F;implementations&#x2F;innovation-sandbox-on-aws&#x2F;&quot;&gt;Innovation Sandbox on AWS&lt;&#x2F;a&gt; already does it — an open-source AWS Solution (CDK-deployable) that manages a pool of pre-provisioned AWS accounts. Key concepts:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Account pool:&lt;&#x2F;strong&gt; A set of AWS accounts in an Organizations OU, sitting idle until leased.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Lease:&lt;&#x2F;strong&gt; A time-boxed assignment of an account to a user, with SSO access.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Lease template:&lt;&#x2F;strong&gt; Governance rules — duration, approval workflow.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Blueprint:&lt;&#x2F;strong&gt; A CloudFormation StackSet that deploys infrastructure into the account when a lease is granted.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Cleanup:&lt;&#x2F;strong&gt; When the lease ends, Innovation Sandbox on AWS recycles the account with its Account Cleaner — a multi-pass &lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;ekristen&#x2F;aws-nuke&quot;&gt;&lt;code&gt;aws-nuke&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; sweep — and returns it to the pool. The blueprint is &lt;em&gt;not&lt;&#x2F;em&gt; gracefully deleted first; see &lt;a href=&quot;https:&#x2F;&#x2F;andskli.github.io&#x2F;posts&#x2F;self-service-k8s-training-labs&#x2F;#teardown&quot;&gt;Teardown&lt;&#x2F;a&gt;.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;The Blueprint feature is what makes this work for training labs. Instead of handing learners a blank account and a piece of paper with some documentation, you give them an account that already has the lab infrastructure running.&lt;&#x2F;p&gt;
+&lt;p&gt;Blueprints are CloudFormation StackSets, but the infrastructure you actually want to stand up — the opinionated EKS configuration that defines how Kubernetes runs at your company — is rarely written purely in CloudFormation. It&#x27;s more likely Terraform, CDK, or Pulumi: the same modules you already use to provision production clusters, with their networking policies, add-ons, RBAC defaults, and observability stacks. We bridge that gap with a thin CloudFormation wrapper that bootstraps a CodeBuild project to run &lt;em&gt;any&lt;&#x2F;em&gt; provisioning code when the lease is granted.&lt;&#x2F;p&gt;
+
+&lt;figure class=&quot;d2-diagram&quot;&gt;
+  &lt;img src=&quot;&amp;#x2F;img&amp;#x2F;diagrams&amp;#x2F;self-service-k8s-training-labs&amp;#x2F;building-blocks.svg&quot;
+       alt=&quot;Each layer builds on the one below — Innovation Sandbox on AWS vends the account, a Blueprint deploys the CodeBuild shim, and the shim applies your Terraform.&quot;
+       loading=&quot;lazy&quot;
+       data-lightbox&gt;
+  &lt;figcaption&gt;Each layer builds on the one below — Innovation Sandbox on AWS vends the account, a Blueprint deploys the CodeBuild shim, and the shim applies your Terraform.&lt;&#x2F;figcaption&gt;
+&lt;&#x2F;figure&gt;
+&lt;p&gt;The Blueprint StackSet deploys a handful of resources (&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;andskli&#x2F;innovation-sandbox-eks-example-blueprint&quot;&gt;example template&lt;&#x2F;a&gt;), importantly:&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;IAM role&lt;&#x2F;strong&gt; — the CodeBuild execution role that runs your provisioning code. The example template ships with broader permissions than any single lab needs, to stay lab- and tool-agnostic; for production, scope it down to what your lab actually provisions. &lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;docs.aws.amazon.com&#x2F;IAM&#x2F;latest&#x2F;UserGuide&#x2F;access-analyzer-policy-generation.html&quot;&gt;IAM Access Analyzer policy generation&lt;&#x2F;a&gt; can produce a least-privilege policy from the role&#x27;s CloudTrail activity after a representative run.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Workspace bucket&lt;&#x2F;strong&gt; (custom resource) — manages an S3 bucket in the sandbox account for working state (e.g., Terraform state) or other lease-scoped scratch space. Creates the bucket on stack creation and handles clean deletion on stack teardown.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;CodeBuild project&lt;&#x2F;strong&gt; — runs your provisioning code. The lab lifecycle only needs the provisioning path (&lt;code&gt;buildspec-create.yml&lt;&#x2F;code&gt;); a &lt;code&gt;buildspec-destroy.yml&lt;&#x2F;code&gt; also ships for manual teardown (see &lt;a href=&quot;https:&#x2F;&#x2F;andskli.github.io&#x2F;posts&#x2F;self-service-k8s-training-labs&#x2F;#teardown&quot;&gt;Teardown&lt;&#x2F;a&gt;). Source is an S3 artifact bundle (zip) in a central bucket &lt;em&gt;you&lt;&#x2F;em&gt; create and populate — Innovation Sandbox on AWS doesn&#x27;t provision it; you point the Blueprint&#x27;s &lt;code&gt;SourceBucket&lt;&#x2F;code&gt;&#x2F;&lt;code&gt;SourceKey&lt;&#x2F;code&gt; parameters at an artifact your CI publishes. Because CodeBuild runs &lt;em&gt;in the sandbox account&lt;&#x2F;em&gt;, reading that bucket is a cross-account operation — see &lt;a href=&quot;https:&#x2F;&#x2F;andskli.github.io&#x2F;posts&#x2F;self-service-k8s-training-labs&#x2F;#getting-the-source-into-the-sandbox-account&quot;&gt;Getting the source into the sandbox account&lt;&#x2F;a&gt; for how to grant it safely. No VCS connectivity is required in the sandbox accounts.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Lab provisioner&lt;&#x2F;strong&gt; (custom resource) — on stack CREATE it triggers a Step Functions state machine that starts CodeBuild, polls for completion, and reports the result back to CloudFormation. The DELETE path runs the same way for manual teardown, though Innovation Sandbox on AWS recycles with aws-nuke instead — see &lt;a href=&quot;https:&#x2F;&#x2F;andskli.github.io&#x2F;posts&#x2F;self-service-k8s-training-labs&#x2F;#teardown&quot;&gt;Teardown&lt;&#x2F;a&gt;. UPDATE is a no-op: lab infrastructure is immutable, and Innovation Sandbox on AWS never updates a deployed blueprint mid-lease — to change it, recycle the account and re-lease.&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;Step Functions handles the wait because infrastructure provisioning can take longer than Lambda&#x27;s 15-minute maximum execution time. The pattern is agnostic to what runs inside CodeBuild — Terraform, CDK, Pulumi, or a plain bash script.&lt;&#x2F;p&gt;
+&lt;p&gt;One timeout to mind: Innovation Sandbox on AWS gives each blueprint its own &lt;strong&gt;deployment timeout&lt;&#x2F;strong&gt; (30 minutes by default, set per blueprint), and treats an overrun as a failed deployment — which terminates the lease and recycles the account, so the learner never gets in. A full EKS build runs ~15–20 minutes, comfortably under 30; if your provisioning is heavier, raise the blueprint&#x27;s deployment timeout (and the CodeBuild project&#x27;s own timeout) to match.&lt;&#x2F;p&gt;
+&lt;p&gt;For the rest of this post, we&#x27;ll use Terraform as the example since it&#x27;s the most common case for platform teams, but the pattern works with anything that has a create and destroy path.&lt;&#x2F;p&gt;
+&lt;p&gt;On lease grant, CodeBuild runs &lt;code&gt;terraform apply&lt;&#x2F;code&gt;. The learner&#x27;s account comes up with a fully configured EKS cluster — built exactly the way you run EKS in production, with the right add-ons, networking policies, and guardrails — from the same Terraform modules you use in real environments. Everything should be wired up the way it is in production, so learners exercise the real platform rather than a simplified stand-in. For example, how the learner is then granted cluster access — through EKS access entries, &lt;code&gt;aws-auth&lt;&#x2F;code&gt;, or your org&#x27;s existing SSO&#x2F;OIDC federation — depends on your platform&#x27;s identity setup.&lt;&#x2F;p&gt;
+&lt;p&gt;Because the same account is leased, recycled, and leased again, your provisioning has to be &lt;strong&gt;idempotent&lt;&#x2F;strong&gt; — it must come up cleanly on a freshly nuked account every time. The trap is fixed, account-scoped names that a cleanup pass can leave behind: a stray &lt;code&gt;alias&#x2F;eks&#x2F;&amp;lt;cluster&amp;gt;&lt;&#x2F;code&gt; KMS alias or a half-deleted cluster will fail the next &lt;code&gt;terraform apply&lt;&#x2F;code&gt;, and Innovation Sandbox on AWS reads that failure as a failed deployment and recycles the account. Derive names per deployment so a second lease never collides with residue from the first.&lt;&#x2F;p&gt;
+&lt;p&gt;The workflow then looks something like this:&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;Learner requests lease&lt;&#x2F;li&gt;
+&lt;li&gt;Innovation Sandbox on AWS assigns learner an account from the pool&lt;&#x2F;li&gt;
+&lt;li&gt;Blueprint StackSet deploys the CodeBuild provisioning shim&lt;&#x2F;li&gt;
+&lt;li&gt;Step Functions manages CodeBuild builds&lt;&#x2F;li&gt;
+&lt;li&gt;CodeBuild runs provisioning of your IaC module&lt;&#x2F;li&gt;
+&lt;li&gt;Learner uses account for learning, exploring or following predefined instructions&lt;&#x2F;li&gt;
+&lt;li&gt;Account gets cleaned up and returned to the pool&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;h2 id=&quot;getting-the-source-into-the-sandbox-account&quot;&gt;Getting the source into the sandbox account&lt;a class=&quot;zola-anchor&quot; href=&quot;#getting-the-source-into-the-sandbox-account&quot; aria-label=&quot;Anchor link for: getting-the-source-into-the-sandbox-account&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;CodeBuild runs &lt;em&gt;inside the leased sandbox account&lt;&#x2F;em&gt;, but your provisioning code lives in a central bucket. Because sandbox accounts are deliberately low-trust — learners often have broad permissions inside them — the source distribution has to be read-only, scoped, and private.&lt;&#x2F;p&gt;
+&lt;p&gt;Keep a zip file containing the source for your infrastructure module in a bucket in your hub account (where Innovation Sandbox on AWS itself runs), and grant cross-account read with an OU-scoped bucket policy:&lt;&#x2F;p&gt;
+&lt;pre class=&quot;giallo z-code&quot;&gt;&lt;code data-lang=&quot;json&quot;&gt;&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;{&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span class=&quot;z-support&quot;&gt;  &amp;quot;&lt;&#x2F;span&gt;&lt;span class=&quot;z-support&quot;&gt;Effect&lt;&#x2F;span&gt;&lt;span class=&quot;z-support&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;:&lt;&#x2F;span&gt;&lt;span class=&quot;z-punctuation z-definition z-string&quot;&gt; &amp;quot;&lt;&#x2F;span&gt;&lt;span class=&quot;z-string&quot;&gt;Allow&lt;&#x2F;span&gt;&lt;span class=&quot;z-punctuation z-definition z-string&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span class=&quot;z-support&quot;&gt;  &amp;quot;&lt;&#x2F;span&gt;&lt;span class=&quot;z-support&quot;&gt;Principal&lt;&#x2F;span&gt;&lt;span class=&quot;z-support&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;:&lt;&#x2F;span&gt;&lt;span class=&quot;z-punctuation z-definition z-string&quot;&gt; &amp;quot;&lt;&#x2F;span&gt;&lt;span class=&quot;z-string&quot;&gt;*&lt;&#x2F;span&gt;&lt;span class=&quot;z-punctuation z-definition z-string&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span class=&quot;z-support&quot;&gt;  &amp;quot;&lt;&#x2F;span&gt;&lt;span class=&quot;z-support&quot;&gt;Action&lt;&#x2F;span&gt;&lt;span class=&quot;z-support&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;:&lt;&#x2F;span&gt;&lt;span&gt; [&lt;&#x2F;span&gt;&lt;span class=&quot;z-punctuation z-definition z-string&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span class=&quot;z-string&quot;&gt;s3:GetObject&lt;&#x2F;span&gt;&lt;span class=&quot;z-punctuation z-definition z-string&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;span class=&quot;z-punctuation z-definition z-string&quot;&gt; &amp;quot;&lt;&#x2F;span&gt;&lt;span class=&quot;z-string&quot;&gt;s3:GetObjectVersion&lt;&#x2F;span&gt;&lt;span class=&quot;z-punctuation z-definition z-string&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;]&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span class=&quot;z-support&quot;&gt;  &amp;quot;&lt;&#x2F;span&gt;&lt;span class=&quot;z-support&quot;&gt;Resource&lt;&#x2F;span&gt;&lt;span class=&quot;z-support&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;:&lt;&#x2F;span&gt;&lt;span class=&quot;z-punctuation z-definition z-string&quot;&gt; &amp;quot;&lt;&#x2F;span&gt;&lt;span class=&quot;z-string&quot;&gt;arn:aws:s3:::my-blueprint-source&#x2F;*&lt;&#x2F;span&gt;&lt;span class=&quot;z-punctuation z-definition z-string&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span class=&quot;z-support&quot;&gt;  &amp;quot;&lt;&#x2F;span&gt;&lt;span class=&quot;z-support&quot;&gt;Condition&lt;&#x2F;span&gt;&lt;span class=&quot;z-support&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;:&lt;&#x2F;span&gt;&lt;span&gt; {&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span class=&quot;z-support&quot;&gt;    &amp;quot;&lt;&#x2F;span&gt;&lt;span class=&quot;z-support&quot;&gt;ForAnyValue:StringEquals&lt;&#x2F;span&gt;&lt;span class=&quot;z-support&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;:&lt;&#x2F;span&gt;&lt;span&gt; {&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span class=&quot;z-support&quot;&gt;      &amp;quot;&lt;&#x2F;span&gt;&lt;span class=&quot;z-support&quot;&gt;aws:PrincipalOrgPaths&lt;&#x2F;span&gt;&lt;span class=&quot;z-support&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;:&lt;&#x2F;span&gt;&lt;span&gt; [&lt;&#x2F;span&gt;&lt;span class=&quot;z-punctuation z-definition z-string&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span class=&quot;z-string&quot;&gt;o-xxxxxxxxxx&#x2F;r-xxxxxxxxxx&#x2F;ou-xxxx-xxxxxxxx&#x2F;&lt;&#x2F;span&gt;&lt;span class=&quot;z-punctuation z-definition z-string&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;]&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;    }&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;  }&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;}&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Here, &lt;code&gt;aws:PrincipalOrgPaths&lt;&#x2F;code&gt; scopes access to just the sandbox OU. Only accounts in your Innovation Sandbox on AWS account-pool OU can read the source, not the whole Organization. You still avoid enumerating account IDs, so newly recycled accounts work automatically, and Block Public Access stays on. The CodeBuild role needs the matching &lt;code&gt;s3:GetObject&lt;&#x2F;code&gt; in its identity policy — scope it to this bucket ARN, not &lt;code&gt;s3:*&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;Note: if you&#x27;d rather grant the entire organization, swap &lt;code&gt;aws:PrincipalOrgPaths&lt;&#x2F;code&gt; for &lt;code&gt;aws:PrincipalOrgID=o-xxxxxxxx&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;A couple of details matter here:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Encryption.&lt;&#x2F;strong&gt; If the bucket is SSE-KMS, cross-account reads &lt;em&gt;also&lt;&#x2F;em&gt; need the KMS key policy to grant &lt;code&gt;kms:Decrypt&lt;&#x2F;code&gt; to the same principals — the bucket policy alone isn&#x27;t enough. SSE-S3 (AES256) avoids that second grant entirely; use it unless a customer-managed key is mandated.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Versioning.&lt;&#x2F;strong&gt; Name each source zip with a semantic version — &lt;code&gt;eks-blueprint-1.4.2.zip&lt;&#x2F;code&gt; — and have every Blueprint reference an exact version key. Publishing &lt;code&gt;1.5.0&lt;&#x2F;code&gt; then leaves in-flight leases untouched; you roll a lab forward by bumping the version its Blueprint points at, never by overwriting a &lt;code&gt;latest&lt;&#x2F;code&gt; key. S3 object versioning works too, but version-stamped keys are easier to pin from a manifest and reason about.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;The source is infrastructure code, not secrets, and the grant is read-only, scoped to a single bucket, and limited to the sandbox OU — so even the broad permissions learners hold &lt;em&gt;inside&lt;&#x2F;em&gt; a sandbox account don&#x27;t widen it.&lt;&#x2F;p&gt;
+&lt;p&gt;It&#x27;s worth asking whether the state bucket should live in a central account so it survives account cleanup — for this pattern, it shouldn&#x27;t. The state is only needed during the lease: &lt;code&gt;terraform apply&lt;&#x2F;code&gt; writes it on provisioning, and when the lease ends the Account Cleaner&#x27;s &lt;code&gt;aws-nuke&lt;&#x2F;code&gt; sweep deletes the bucket along with everything else in the account. The same holds for any tool that keeps state — keep it in-account. That avoids cross-account IAM, a central tooling account to maintain, and orphaned state files from expired leases. The state is as ephemeral as the lab itself.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;teardown&quot;&gt;Teardown&lt;a class=&quot;zola-anchor&quot; href=&quot;#teardown&quot; aria-label=&quot;Anchor link for: teardown&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;Teardown is where I had to correct my own mental model against the docs: &lt;strong&gt;the blueprint doesn&#x27;t tear itself down, and you shouldn&#x27;t try to make it.&lt;&#x2F;strong&gt; When a lease ends, Innovation Sandbox on AWS recycles the account in two steps:&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;It drops the blueprint&#x27;s StackSet metadata&lt;&#x2F;strong&gt; — a &lt;code&gt;DeleteStackInstances&lt;&#x2F;code&gt; call with &lt;code&gt;RetainStacks=true&lt;&#x2F;code&gt;, which removes the per-account stack-instance record from the StackSet (keeping the control plane tidy) but deliberately leaves the stack in the sandbox account untouched.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;The Account Cleaner wipes the account&lt;&#x2F;strong&gt; — it moves the account to a CleanUp OU and runs &lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;ekristen&#x2F;aws-nuke&quot;&gt;&lt;code&gt;aws-nuke&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; in a CodeBuild job, looping until the account comes back clean (three successful passes by default). That loop is what absorbs the fiddly EKS deletion ordering — load-balancer ENIs, security-group cross-references, PVC finalizers, nodegroups-before-cluster — retrying until it resolves, or quarantining the account for an administrator if it can&#x27;t.&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;Because step 1 uses &lt;code&gt;RetainStacks=true&lt;&#x2F;code&gt;, CloudFormation never issues a stack delete — so your custom resource&#x27;s Delete handler, and any &lt;code&gt;terraform destroy&lt;&#x2F;code&gt; it would run, is &lt;strong&gt;never invoked during a lease recycle.&lt;&#x2F;strong&gt; aws-nuke owns the actual teardown, and it&#x27;s built for exactly this. A destroy path in the blueprint buys you nothing here; what matters is that the blueprint provisions cleanly into a freshly recycled account every time, because that&#x27;s the only path that runs.&lt;&#x2F;p&gt;
+&lt;p&gt;So why does the example still ship a &lt;code&gt;buildspec-destroy.yml&lt;&#x2F;code&gt; and a Delete handler? &lt;strong&gt;For developing the blueprint itself — not the lease lifecycle.&lt;&#x2F;strong&gt; While you iterate on the lab, you deploy the template as a plain CloudFormation stack, and there &lt;code&gt;delete-stack&lt;&#x2F;code&gt; runs an ordered &lt;code&gt;terraform destroy&lt;&#x2F;code&gt; to tear your test cluster down cleanly instead of leaving you to nuke or hand-delete it. The same handler covers create-failure rollback: if provisioning fails, CloudFormation rolls the stack back and the Delete handler unwinds whatever got created. Useful on your own account; irrelevant once Innovation Sandbox on AWS is doing the recycling.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;lab-instructions&quot;&gt;Lab instructions&lt;a class=&quot;zola-anchor&quot; href=&quot;#lab-instructions&quot; aria-label=&quot;Anchor link for: lab-instructions&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;The blueprint provisions the &lt;em&gt;environment&lt;&#x2F;em&gt; — it doesn&#x27;t ship the lab guide. Delivering the actual exercises, the steps a learner follows, is out of scope for the pattern, and you almost certainly already have a home for it: an internal wiki, your existing docs platform, or wherever your team keeps its runbooks. Author the instructions there and point learners at their leased account. Keeping the teaching material in the docs tooling you already run means it inherits whatever review and versioning you already have, instead of bolting a new system onto the blueprint.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;making-the-flywheel-spin&quot;&gt;Making the flywheel spin&lt;a class=&quot;zola-anchor&quot; href=&quot;#making-the-flywheel-spin&quot; aria-label=&quot;Anchor link for: making-the-flywheel-spin&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;Self-service labs solve the &quot;I need a sandbox&quot; problem, but someone still needs to create the content and support learners who get stuck. The sustainable model is train-the-trainer:&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Platform team&lt;&#x2F;strong&gt; authors the labs and Terraform modules (they know the platform best)&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;First cohort&lt;&#x2F;strong&gt; of product developers goes through the labs with platform team support&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Graduates&lt;&#x2F;strong&gt; from the first cohort become internal trainers for their own teams&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Platform team&lt;&#x2F;strong&gt; shifts to content maintenance and trainer certification&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+
+&lt;figure class=&quot;d2-diagram&quot;&gt;
+  &lt;img src=&quot;&amp;#x2F;img&amp;#x2F;diagrams&amp;#x2F;self-service-k8s-training-labs&amp;#x2F;flywheel.svg&quot;
+       alt=&quot;The self-reinforcing loop: each cohort&amp;amp;#x27;s graduates become the next cohort&amp;amp;#x27;s trainers, seeded once by the platform team.&quot;
+       loading=&quot;lazy&quot;
+       data-lightbox&gt;
+  &lt;figcaption&gt;The self-reinforcing loop: each cohort&amp;#x27;s graduates become the next cohort&amp;#x27;s trainers, seeded once by the platform team.&lt;&#x2F;figcaption&gt;
+&lt;&#x2F;figure&gt;
+&lt;p&gt;That&#x27;s the flywheel: each cohort trains the next, so enablement scales with the organization instead of bottlenecking on the platform team&#x27;s calendar.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;a class=&quot;zola-anchor&quot; href=&quot;#summary&quot; aria-label=&quot;Anchor link for: summary&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;The pattern:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Innovation Sandbox on AWS&lt;&#x2F;strong&gt; manages the account pool, leases, and lifecycle&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Blueprints&lt;&#x2F;strong&gt; (CFN StackSets) are thin shims that orchestrate CodeBuild via Step Functions&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;CodeBuild&lt;&#x2F;strong&gt; runs any provisioning&#x2F;teardown code — Terraform, CDK, Pulumi, or scripts&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Account Cleaner&lt;&#x2F;strong&gt; — the multi-pass &lt;code&gt;aws-nuke&lt;&#x2F;code&gt; sweep Innovation Sandbox on AWS runs at lease end — owns teardown; the blueprint provisions on create and doesn&#x27;t tear itself down&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Custom resource + Step Functions&lt;&#x2F;strong&gt; run the provisioning build and report success or failure back to CloudFormation&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Lab instructions&lt;&#x2F;strong&gt; live in your existing wiki&#x2F;docs — out of scope for the blueprint&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Train-the-trainer&lt;&#x2F;strong&gt; scales delivery beyond the platform team&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;references&quot;&gt;References&lt;a class=&quot;zola-anchor&quot; href=&quot;#references&quot; aria-label=&quot;Anchor link for: references&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;andskli&#x2F;innovation-sandbox-eks-example-blueprint&quot;&gt;Example EKS Blueprint (CFN template + Step Functions + buildspec)&lt;&#x2F;a&gt; — companion code for this post&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;aws.amazon.com&#x2F;solutions&#x2F;implementations&#x2F;innovation-sandbox-on-aws&#x2F;&quot;&gt;Innovation Sandbox on AWS&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;docs.aws.amazon.com&#x2F;solutions&#x2F;latest&#x2F;innovation-sandbox-on-aws&#x2F;concepts-and-definitions.html&quot;&gt;Innovation Sandbox on AWS Blueprints (concepts &amp;amp; definitions)&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;ekristen&#x2F;aws-nuke&quot;&gt;&lt;code&gt;ekristen&#x2F;aws-nuke&lt;&#x2F;code&gt; (actively maintained fork)&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;repost.aws&#x2F;knowledge-center&#x2F;eks-delete-cluster-resources&quot;&gt;EKS cluster deletion guide (AWS re:Post)&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;hashicorp&#x2F;terraform-provider-aws&#x2F;issues&#x2F;38887&quot;&gt;terraform-provider-aws #38887 — ENI cleanup issue&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+	</entry>
+	<entry xml:lang="en">
+		<title>Kubernetes beyond a single cluster</title>
+		<published>2026-03-17T00:00:00+00:00</published>
+		<updated>2026-03-17T00:00:00+00:00</updated>
+		<link href="https://andskli.github.io/posts/k8s-beyond-a-single-cluster/" type="text/html"/>
+		<id>https://andskli.github.io/posts/k8s-beyond-a-single-cluster/</id>
+		<content type="html">&lt;p&gt;In my day-to-day work, I meet many teams running Kubernetes. A common pattern is to treat a Kubernetes cluster as a single, self-contained unit in their architecture. The cluster becomes the boundary for service discovery, networking, scaling, and sometimes even organizational ownership.&lt;&#x2F;p&gt;
+&lt;p&gt;This works well for a while. Until it doesn’t.&lt;&#x2F;p&gt;
+&lt;p&gt;This post looks at when the single-cluster pattern is perfectly reasonable, and when it starts to become a structural limitation.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;the-everything-cluster-problem&quot;&gt;The “everything cluster” problem&lt;a class=&quot;zola-anchor&quot; href=&quot;#the-everything-cluster-problem&quot; aria-label=&quot;Anchor link for: the-everything-cluster-problem&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;A single cluster is convenient, both operationally and cognitively. But whether you like it or not, it is still a failure domain.&lt;&#x2F;p&gt;
+&lt;p&gt;If everything runs inside one cluster, that cluster becomes the universal context in which your applications operate. Applications rely on patterns that only exist inside the cluster, such as Kubernetes service discovery and cluster-local networking. You gain simplicity, but you lose flexibility.&lt;&#x2F;p&gt;
+&lt;p&gt;Cluster outages become system outages. Scaling limits become tightly coupled to the behavior of a single control plane and its worker nodes. And those scaling properties can change rapidly in multi-tenant environments.&lt;&#x2F;p&gt;
+&lt;p&gt;Imagine a team deploying a queue consumer where each unit of work runs in its own pod. Suddenly hundreds of pods are launching per minute. From the team’s perspective this may look fine, but the behavior now affects the entire cluster: scheduler pressure increases, API server load rises, and node capacity becomes contested.&lt;&#x2F;p&gt;
+&lt;p&gt;The scaling pattern of a single application has now become a platform problem.&lt;&#x2F;p&gt;
+&lt;p&gt;You might say: &lt;em&gt;“That’s fine, we run multiple clusters”&lt;&#x2F;em&gt;. But if clusters are simply partitioned by team or business unit, the fundamental assumption remains unchanged. Each application still treats its cluster as the world. The architectural boundary has not moved — it has just been duplicated.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;a-more-resilient-way-to-think-about-clusters&quot;&gt;A more resilient way to think about clusters&lt;a class=&quot;zola-anchor&quot; href=&quot;#a-more-resilient-way-to-think-about-clusters&quot; aria-label=&quot;Anchor link for: a-more-resilient-way-to-think-about-clusters&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;A more robust mental model is to treat Kubernetes clusters as disposable compute capacity.&lt;&#x2F;p&gt;
+&lt;p&gt;Clusters can appear and disappear without affecting your ability to serve customers. When you design with this assumption, clusters stop being the platform and instead become an implementation detail.&lt;&#x2F;p&gt;
+&lt;p&gt;This is not a new idea, but many organizations still struggle with it in practice. Clusters often accumulate operational gravity over time: upgrades become risky events, migrations require careful planning, and the cluster itself becomes something that teams are afraid to change.&lt;&#x2F;p&gt;
+&lt;p&gt;If clusters are treated as disposable, that dynamic changes.&lt;&#x2F;p&gt;
+
+&lt;figure class=&quot;d2-diagram&quot;&gt;
+  &lt;img src=&quot;&amp;#x2F;img&amp;#x2F;diagrams&amp;#x2F;k8s-beyond-a-single-cluster&amp;#x2F;mental-model.svg&quot;
+       alt=&quot;Two mental models: the cluster as the platform vs. the cluster as disposable compute.&quot;
+       loading=&quot;lazy&quot;
+       data-lightbox&gt;
+  &lt;figcaption&gt;Two mental models: the cluster as the platform vs. the cluster as disposable compute.&lt;&#x2F;figcaption&gt;
+&lt;&#x2F;figure&gt;
+&lt;p&gt;One practical consequence appears during cluster upgrades. Instead of upgrading a critical production cluster in place, you can provision a new cluster, deploy the same workloads, and gradually shift traffic to it. If something goes wrong, traffic can simply be shifted back to the old cluster. Once the new environment is stable, the previous cluster can be decommissioned.&lt;&#x2F;p&gt;
+&lt;p&gt;In other words, clusters become replaceable infrastructure rather than long-lived platform components.
+Designing systems this way has architectural consequences. If clusters are expected to be replaced, service discovery, traffic routing, and state management can no longer depend on cluster-local constructs. Those capabilities must exist outside the cluster boundary so that workloads can run in multiple clusters at the same time.&lt;&#x2F;p&gt;
+&lt;p&gt;Once those concerns are externalized, clusters become far easier to replace, scale, and operate over time.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;traffic-management&quot;&gt;Traffic management&lt;a class=&quot;zola-anchor&quot; href=&quot;#traffic-management&quot; aria-label=&quot;Anchor link for: traffic-management&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;The first thing you run into is service discovery. Inside a cluster, applications typically discover each other through Kubernetes DNS using names like: &lt;code&gt;service.namespace.svc.cluster.local&lt;&#x2F;code&gt;. That mechanism works only within the cluster.&lt;&#x2F;p&gt;
+&lt;p&gt;If your services need to run across multiple clusters — for example during migrations, upgrades, or regional deployments — you need discovery that exists outside Kubernetes.&lt;&#x2F;p&gt;
+&lt;p&gt;In practice, this means introducing a stable DNS layer that is independent of any specific cluster. Applications resolve external service names, and the underlying endpoints can shift between clusters without changing the contract.&lt;&#x2F;p&gt;
+&lt;p&gt;On AWS, this commonly means using services like:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Amazon Route 53&lt;&#x2F;strong&gt; for DNS-based service discovery&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;AWS Application Load Balancers or Network Load Balancers&lt;&#x2F;strong&gt; as stable entry points for services&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;Each cluster can expose workloads behind its own load balancers, while DNS or a global traffic layer determines where traffic ultimately flows. The important shift is that service identity is no longer tied to a cluster.&lt;&#x2F;p&gt;
+&lt;p&gt;Another side effect of externalizing service discovery and traffic routing is that the distinction between north–south and east–west traffic starts to blur.
+Inside a single cluster, these traffic patterns are typically handled differently. North–south traffic enters through load balancers or ingress controllers, while east–west traffic relies on Kubernetes service discovery and cluster-local networking.&lt;&#x2F;p&gt;
+&lt;p&gt;Once services are discovered through external DNS and exposed through stable endpoints, the patterns begin to converge. Both user traffic and service-to-service traffic can follow the same routing mechanisms.
+This creates a more repeatable architecture. Instead of relying on special cluster-local conventions for internal communication, services interact through the same discovery and routing primitives regardless of where they run.
+In practice, this means that applications become less dependent on cluster-specific networking behavior and more aligned with platform-level service interfaces.&lt;&#x2F;p&gt;
+
+&lt;figure class=&quot;d2-diagram&quot;&gt;
+  &lt;img src=&quot;&amp;#x2F;img&amp;#x2F;diagrams&amp;#x2F;k8s-beyond-a-single-cluster&amp;#x2F;ns-ew-convergence.svg&quot;
+       alt=&quot;Once discovery is externalized, north–south and east–west traffic follow the same path.&quot;
+       loading=&quot;lazy&quot;
+       data-lightbox&gt;
+  &lt;figcaption&gt;Once discovery is externalized, north–south and east–west traffic follow the same path.&lt;&#x2F;figcaption&gt;
+&lt;&#x2F;figure&gt;
+&lt;p&gt;Another practical pattern this unlocks is blue&#x2F;green cluster cutover: run the old and new clusters side-by-side, shift traffic with weighted DNS, and decommission the old cluster once the new one is stable.&lt;&#x2F;p&gt;
+
+&lt;figure class=&quot;d2-diagram&quot;&gt;
+  &lt;img src=&quot;&amp;#x2F;img&amp;#x2F;diagrams&amp;#x2F;k8s-beyond-a-single-cluster&amp;#x2F;blue-green-cutover.svg&quot;
+       alt=&quot;Blue&amp;amp;#x2F;green cluster cutover via weighted DNS, with shared state outside the cluster.&quot;
+       loading=&quot;lazy&quot;
+       data-lightbox&gt;
+  &lt;figcaption&gt;Blue&amp;#x2F;green cluster cutover via weighted DNS, with shared state outside the cluster.&lt;&#x2F;figcaption&gt;
+&lt;&#x2F;figure&gt;
+&lt;h3 id=&quot;state&quot;&gt;State&lt;a class=&quot;zola-anchor&quot; href=&quot;#state&quot; aria-label=&quot;Anchor link for: state&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;State is straightforward conceptually, but sometimes harder in practice. The simplest rule is that state should live outside the cluster. Object storage, databases, and queues should exist independently of Kubernetes. Clusters consume these services rather than owning them.&lt;&#x2F;p&gt;
+&lt;p&gt;On AWS this usually means relying on managed services such as:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Amazon S3&lt;&#x2F;li&gt;
+&lt;li&gt;Amazon DynamoDB&lt;&#x2F;li&gt;
+&lt;li&gt;Amazon RDS or Amazon Aurora&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;This separation makes clusters replaceable. A new cluster can come online and immediately connect to the same underlying data services.&lt;&#x2F;p&gt;
+&lt;p&gt;There are exceptions. Some workloads depend on block storage volumes, for example applications using EBS-backed persistent volumes. Databases are the most common example. In those cases, the “disposable cluster” pattern may not apply directly. That is acceptable. Architectural patterns do not need to apply universally to be valuable. If most workloads can be decoupled from cluster lifecycle, the platform becomes significantly more resilient.&lt;&#x2F;p&gt;
+&lt;p&gt;Treat the remaining cases as deliberate exceptions.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;is-it-worth-the-effort&quot;&gt;Is it worth the effort?&lt;a class=&quot;zola-anchor&quot; href=&quot;#is-it-worth-the-effort&quot; aria-label=&quot;Anchor link for: is-it-worth-the-effort&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;In many cases, yes.&lt;&#x2F;p&gt;
+&lt;p&gt;The goal is not complexity for its own sake. The goal is to avoid making a Kubernetes cluster the highest-level abstraction in your architecture. This approach does introduce additional moving parts. You need external service discovery, consistent networking across clusters, and deployment pipelines capable of targeting multiple environments. However, these concerns are generally easier to manage than treating a single cluster as the critical foundation of the entire platform.&lt;&#x2F;p&gt;
+&lt;p&gt;When clusters become the platform, everything becomes harder: upgrades, migrations, scaling, and regional expansion. When clusters are just compute capacity, the platform moves to a higher level — networking, DNS, identity, and managed services. Kubernetes simply becomes one way of consuming that platform.&lt;&#x2F;p&gt;
+&lt;p&gt;For many applications, that is exactly the role it should play.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;practical-suggestions&quot;&gt;Practical suggestions&lt;a class=&quot;zola-anchor&quot; href=&quot;#practical-suggestions&quot; aria-label=&quot;Anchor link for: practical-suggestions&quot; style=&quot;visibility: hidden;&quot;&gt;#&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;If you want to move toward this model incrementally, a few changes can make a significant difference.&lt;&#x2F;p&gt;
+&lt;p&gt;First, introduce DNS-based service discovery that is independent of Kubernetes. Services should resolve stable DNS names rather than cluster-local service names.&lt;&#x2F;p&gt;
+&lt;p&gt;Second, expose services through managed load balancers instead of relying solely on Kubernetes service networking. On AWS, Application Load Balancers and Network Load Balancers provide stable endpoints that can front services running in multiple clusters.&lt;&#x2F;p&gt;
+&lt;p&gt;Third, move state out of the cluster wherever possible. Managed storage and database services dramatically simplify cluster lifecycle management.&lt;&#x2F;p&gt;
+&lt;p&gt;Finally, assume that clusters will be replaced. Design deployment pipelines and infrastructure so that creating a new cluster is routine rather than exceptional.&lt;&#x2F;p&gt;
+&lt;p&gt;Once that becomes normal, Kubernetes clusters stop being fragile infrastructure and start behaving like what they really are: replaceable compute capacity.&lt;&#x2F;p&gt;
+</content>
+	</entry>
+</feed>
