@@ -1,7 +1,7 @@
 # Let's add some information about the site
 base_url = "https://andskli.github.io"
 title = "Andreas Lindh"
-description = "Containers, Kubernetes, and cloud architecture — thoughts from a Senior Specialist Solutions Architect at AWS."
+description = "Databases, distributed systems, and cloud architecture — notes on building modern platforms."
 default_language = "en"
 
 # Specify our theme
@@ -43,7 +43,7 @@ anchors = "on"
 [extra]
 name = "Andreas Lindh"
 id = "andskli"
-bio = "Senior Specialist Solutions Architect at AWS, focused on containers and Kubernetes. Based in Stockholm."
+bio = "Solutions architect writing about databases, infrastructure, and distributed systems. Based in Stockholm."
 avatar = "img/avatar.png"
 links = [
   { name = "GitHub", icon = "github", url = "https://github.com/andskli" },
