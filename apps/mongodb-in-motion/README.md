@@ -1,4 +1,4 @@
-# MongoDB Unpacked
+# MongoDB in Motion
 
 A standalone 3D educational app explaining MongoDB from document design to distributed architecture. Six data-modeling lessons introduce BSON documents, polymorphism, embedding, references, access patterns, and indexes; eight architecture lessons explore processes, replica sets, routers, and shards.
 
@@ -11,7 +11,7 @@ npm ci
 npm run dev -- --port 5173
 ```
 
-Open http://127.0.0.1:5173/mongodb-unpacked/. The preview binds only to localhost.
+Open http://127.0.0.1:5173/mongodb-in-motion/. The preview binds only to localhost.
 
 ```sh
 npm test       # Behavioral model tests
@@ -19,17 +19,17 @@ npm run build # Type-check and create dist/
 npm run preview -- --port 4173
 ```
 
-Preview the production build at http://127.0.0.1:4173/mongodb-unpacked/.
+Preview the production build at http://127.0.0.1:4173/mongodb-in-motion/.
 
 ## Zola integration
 
-From the repository root, `make mongodb-unpacked` installs locked dependencies, checks formatting, runs tests, and builds into `static/mongodb-unpacked/` using `npm run build:site`. The shared `make apps` target includes this app; `make build`, `make serve`, and both GitHub Actions jobs use it before Zola. Generated output is ignored by Git; edit and commit the source here.
+From the repository root, `make mongodb-in-motion` installs locked dependencies, checks formatting, runs tests, and builds into `static/mongodb-in-motion/` using `npm run build:site`. The shared `make apps` target includes this app; `make build`, `make serve`, and both GitHub Actions jobs use it before Zola. Generated output is ignored by Git; edit and commit the source here.
 
-`vite.config.ts` sets the deployment base to `/mongodb-unpacked/`. The default `npm run build` still writes to `dist/`, which can be hosted under `/mongodb-unpacked/` on any static web server. No database or application backend is required. Serve it over HTTP rather than opening `index.html` as a file. The UI uses Google Fonts when available and system font fallbacks otherwise.
+`vite.config.ts` sets the deployment base to `/mongodb-in-motion/`. The default `npm run build` still writes to `dist/`, which can be hosted under `/mongodb-in-motion/` on any static web server. No database or application backend is required. Serve it over HTTP rather than opening `index.html` as a file. The UI uses Google Fonts when available and system font fallbacks otherwise.
 
 ## Analytics
 
-`index.html` includes the same GoatCounter page-view snippet as the blog, pointing to `andskli.goatcounter.com`. Zola does not apply its shared head template to this standalone HTML. Visits appear under `/mongodb-unpacked/`; lesson changes are in-page interactions and do not send additional events.
+`index.html` includes the same GoatCounter page-view snippet as the blog, pointing to `andskli.goatcounter.com`. Zola does not apply its shared head template to this standalone HTML. Visits appear under `/mongodb-in-motion/`; lesson changes are in-page interactions and do not send additional events.
 
 ## Explore
 

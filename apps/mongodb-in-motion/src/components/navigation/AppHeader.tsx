@@ -30,7 +30,7 @@ export default function AppHeader({
           e.preventDefault();
           onHome();
         }}
-        aria-label="MongoDB Unpacked home"
+        aria-label="MongoDB in Motion home"
       >
         <span className="brand-mark">
           <i />
@@ -38,7 +38,7 @@ export default function AppHeader({
           <i />
         </span>
         <span>
-          MongoDB<span className="brand-light"> Unpacked</span>
+          MongoDB<span className="brand-light"> in Motion</span>
           <small>AN INTERACTIVE FIELD GUIDE</small>
         </span>
       </a>

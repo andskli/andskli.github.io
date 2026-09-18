@@ -8,7 +8,7 @@ export default function AboutDialog({ onClose }: { onClose: () => void }) {
         className="about-modal"
         role="dialog"
         aria-modal="true"
-        aria-label="About MongoDB Unpacked"
+        aria-label="About MongoDB in Motion"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -25,7 +25,7 @@ export default function AboutDialog({ onClose }: { onClose: () => void }) {
           An explorable model.
         </h2>
         <p>
-          MongoDB Unpacked is an independent educational guide. It runs a deterministic
+          MongoDB in Motion is an independent educational guide. It runs a deterministic
           simulation in your browser, with 3D views of documents, collections, processes,
           replica sets, and network routes.
         </p>

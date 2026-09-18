@@ -1,5 +1,5 @@
 {
-  "name": "mongodb-unpacked",
+  "name": "mongodb-in-motion",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -8,7 +8,7 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "test": "node --experimental-strip-types --test \"src/**/*.test.ts\"",
-    "build:site": "npm run build -- --outDir ../../static/mongodb-unpacked --emptyOutDir",
+    "build:site": "npm run build -- --outDir ../../static/mongodb-in-motion --emptyOutDir",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

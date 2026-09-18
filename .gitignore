@@ -4,5 +4,5 @@ static/giallo-light.css
 static/giallo-dark.css
 # Generated at build time by scripts/generate-social-cards.py
 static/img/social-cards/
-# Generated from apps/mongodb-unpacked/ before Zola builds
-static/mongodb-unpacked/
+# Generated from apps/mongodb-in-motion/ before Zola builds
+static/mongodb-in-motion/

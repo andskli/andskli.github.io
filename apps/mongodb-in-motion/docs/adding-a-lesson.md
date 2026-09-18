@@ -133,4 +133,4 @@ npm run build:site
 
 `npm test` discovers nested tests. Shared tests also check every registered lesson, unique step IDs, shortcut destinations, and snapshot isolation. The architecture invariant test checks that flows only use nodes visible in the selected topology.
 
-From the Zola repository root, run `make mongodb-unpacked`, then build or serve Zola. Check the new lesson at `/mongodb-unpacked/` on desktop and mobile: play/pause, previous/next, replay, keyboard controls, inspectors, code examples, and any new options.
+From the Zola repository root, run `make mongodb-in-motion`, then build or serve Zola. Check the new lesson at `/mongodb-in-motion/` on desktop and mobile: play/pause, previous/next, replay, keyboard controls, inspectors, code examples, and any new options.
