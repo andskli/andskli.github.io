@@ -1,0 +1,50 @@
+.main-navigation button {
+  flex-shrink: 0;
+}
+@media (max-width: 800px) {
+  .main-navigation {
+    left: 12px;
+    right: 12px;
+    gap: 2px;
+    padding: 3px;
+  }
+  .main-navigation button {
+    font-size: 10px;
+    gap: 0;
+    padding: 8px 4px;
+    flex: 1;
+    min-width: 0;
+  }
+  .main-navigation button svg {
+    display: none;
+  }
+}
+@media (max-width: 370px) {
+  .main-navigation button {
+    font-size: 9px;
+    padding: 8px 2px;
+  }
+}
+.practice-stage .modeling-host {
+  bottom: calc(var(--playback-reserved, 260px) + 47px);
+}
+.practice-stage .modeling-proof {
+  bottom: calc(var(--playback-reserved, 260px) + 8px);
+}
+.practice-stage .modeling-hint {
+  bottom: calc(var(--playback-reserved, 260px) + 48px);
+}
+.practice-stage .modeling-code {
+  bottom: calc(var(--playback-reserved, 260px) + 12px);
+  max-height: calc(100% - var(--playback-reserved, 260px) - 72px);
+}
+.practice-stage .modeling-inspector,
+.practice-stage .document-list {
+  max-height: calc(100% - var(--playback-reserved, 260px) - 48px);
+}
+@media (max-width: 800px) {
+  .practice-stage .modeling-inspector,
+  .practice-stage .document-list {
+    max-height: calc(100% - var(--playback-reserved, 320px) - 75px);
+  }
+}

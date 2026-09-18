@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import { test } from 'node:test';
+import { buildLesson } from '../../../learning/lesson-registry.ts';
+test('migration changes ownership after copying and cleanup preserves each document exactly once across primaries', () => {
+  const lesson = buildLesson('migrate', 'sharded');
+  const copying = lesson.steps.find((s) => s.after.migration === 'copying')!.after;
+  assert.equal(copying.rangeOwner, 'A');
+  assert.equal(copying.members.b1.docs.length, 5);
+  const committed = lesson.steps.find((s) => s.after.migration === 'committed')!.after;
+  assert.equal(committed.rangeOwner, 'B');
+  assert.equal(committed.cacheVersion, 1);
+  const final = lesson.steps.at(-1)!.after;
+  assert.equal(final.cacheVersion, 2);
+  assert.equal(final.migration, 'cleaned');
+  const documents = [...final.members.a1.docs, ...final.members.b1.docs];
+  assert.equal(documents.length, 6);
+  assert.equal(new Set(documents.map((d) => d._id)).size, 6);
+  assert.deepEqual(final.members.a1.docs, final.members.a2.docs);
+  assert.deepEqual(final.members.b1.docs, final.members.b3.docs);
+  assert.equal(final.members.b1.docs.find((d) => d.tenantId === 42)?.item, 'Field notes');
+});

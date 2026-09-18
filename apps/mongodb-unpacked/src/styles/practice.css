@@ -1,0 +1,200 @@
+/* Workload and index lessons expose the work alongside the result. */
+.practice-work {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 20px 11px;
+  min-height: 42px;
+}
+.practice-counts {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 9px;
+  color: #8a9c80;
+}
+.practice-counts > span {
+  white-space: nowrap;
+}
+.practice-counts strong {
+  font: 500 13px var(--mono);
+  color: #568158;
+  margin-right: 3px;
+}
+.practice-counts small {
+  font: 7px var(--mono);
+  color: #a3af98;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.practice-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.practice-actions button {
+  font-size: 9px;
+  background: #eef4e7;
+  color: #789768;
+  border: 1px solid #dfe8d6;
+  border-radius: 5px;
+  padding: 6px 8px;
+  white-space: nowrap;
+}
+.practice-actions button:hover {
+  background: #e5efdc;
+}
+.practice-actions button[aria-pressed='true'] {
+  color: #376b3d;
+  background: #dfead4;
+  border-color: #b6cca4;
+}
+.practice-actions .index-inspect-button {
+  display: flex;
+  padding: 6px;
+}
+.practice-stage .modeling-host {
+  bottom: 290px;
+}
+.practice-stage .modeling-proof {
+  bottom: 260px;
+}
+.practice-stage .modeling-hint {
+  bottom: 296px;
+}
+.practice-stage .modeling-code {
+  bottom: 281px;
+  max-height: calc(100% - 310px);
+}
+.practice-stage .modeling-inspector {
+  max-height: calc(100% - 302px);
+}
+.index-label button {
+  color: #8870a3;
+  border-color: #d8cde7;
+}
+.index-definition {
+  padding: 10px 18px;
+  background: #f1edf6;
+  border-top: 1px solid #e4dced;
+  border-bottom: 1px solid #e4dced;
+  color: #8c77a3;
+  font-size: 10px;
+  line-height: 1.7;
+}
+.index-entry-table {
+  width: calc(100% - 36px);
+  margin: 12px 18px;
+  border-collapse: collapse;
+  text-align: left;
+}
+.index-entry-table th {
+  font-size: 9px;
+  color: #a397af;
+  font-weight: 500;
+  padding: 6px 8px;
+}
+.index-entry-table td {
+  font-size: 10px;
+  color: #887299;
+  padding: 8px;
+  border-bottom: 1px solid #eee6f4;
+}
+.index-entry-table tr.key-selected {
+  background: #eee7f6;
+}
+.index-entry-table td button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  font: 10px var(--mono);
+  color: #8c70a7;
+  padding: 0;
+}
+.index-entry-table td button:hover {
+  text-decoration: underline;
+}
+.practice-stage .modeling-inspector .inspector-bottom {
+  gap: 8px;
+}
+@media (max-width: 1100px) {
+  .practice-counts {
+    gap: 8px;
+  }
+  .practice-counts small {
+    display: none;
+  }
+  .practice-work {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .practice-actions button {
+    padding: 6px;
+    font-size: 8px;
+  }
+  .practice-stage .modeling-host {
+    bottom: 305px;
+  }
+  .practice-stage .modeling-proof {
+    bottom: 275px;
+  }
+  .practice-stage .modeling-code {
+    bottom: 292px;
+  }
+}
+@media (max-width: 800px) {
+  .practice-work {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 0 14px 11px;
+  }
+  .practice-counts {
+    justify-content: center;
+    gap: 14px;
+  }
+  .practice-counts small {
+    display: inline;
+    font-size: 6px;
+  }
+  .practice-actions {
+    justify-content: center;
+  }
+  .practice-actions button {
+    font-size: 9px;
+    padding: 6px 9px;
+  }
+  .practice-stage .modeling-host {
+    bottom: 362px;
+  }
+  .practice-stage .modeling-proof {
+    bottom: 333px;
+    font-size: 9px;
+  }
+  .practice-stage .modeling-code {
+    bottom: 340px;
+    max-height: calc(100% - 404px);
+  }
+  .practice-stage .modeling-inspector {
+    max-height: calc(100% - 410px);
+  }
+  .practice-stage .document-list {
+    max-height: calc(100% - 410px);
+  }
+  .practice-stage .document-label button {
+    font-size: 7px;
+    padding: 3px 4px;
+  }
+  .practice-stage .collection-caption span {
+    font-size: 5px;
+    letter-spacing: 0.1px;
+  }
+  .practice-stage .collection-caption strong {
+    font-size: 8px;
+  }
+  .practice-stage .modeling-playback .playback-content {
+    min-height: 158px;
+  }
+}

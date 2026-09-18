@@ -1,0 +1,430 @@
+/* Documents and architecture share one lesson navigation. */
+.lesson-list {
+  flex: 1;
+  gap: 0;
+  scrollbar-width: thin;
+  scrollbar-color: #c8d6c2 transparent;
+  padding-bottom: 12px;
+}
+.lesson-section {
+  flex-shrink: 0;
+}
+.lesson-section + .lesson-section {
+  margin-top: 17px;
+  border-top: 1px solid #e7ecdf;
+  padding-top: 8px;
+}
+.lesson-section-title {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 11px 9px;
+  margin: 0;
+  color: #7d907d;
+  font: 500 9px var(--mono);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.lesson-section-title > span:last-child {
+  color: #aab7a1;
+}
+.lesson-section .lesson-link {
+  min-height: 56px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-bottom: 3px;
+}
+.modeling-link .lesson-icon {
+  color: #739389;
+  background: #edf3ed;
+}
+.modeling-link.active .lesson-icon {
+  color: #36836a;
+  background: #d6e9d7;
+}
+.sidebar-top {
+  flex-shrink: 0;
+}
+.sidebar-footer {
+  flex-shrink: 0;
+}
+.sidebar-note {
+  display: none;
+}
+.brand {
+  white-space: nowrap;
+}
+.learning-mode {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: #edf3e9;
+  border: 1px solid #e0e8da;
+  color: #6a8b6e;
+  padding: 10px 14px;
+  border-radius: 9px;
+  font-size: 11px;
+}
+.learning-mode strong {
+  font-weight: 550;
+}
+.learning-mode > span {
+  font-size: 9px;
+  padding-left: 12px;
+  border-left: 1px solid #d5e1ce;
+  color: #93a18a;
+}
+.modeling-host {
+  top: 118px;
+  bottom: 244px;
+}
+.modeling-stage .scene-intro p {
+  max-width: 680px;
+}
+.modeling-stage .scene-toolbar {
+  z-index: 4;
+}
+.document-label {
+  pointer-events: none;
+  white-space: nowrap;
+}
+.document-label button {
+  pointer-events: auto;
+  background: #fcfef8ee;
+  border: 1px solid #d0dfc9;
+  color: #456446;
+  box-shadow: 0 3px 7px #39582b0a;
+  font-size: 10px;
+  border-radius: 6px;
+  padding: 5px 10px;
+  transition: all 0.15s;
+}
+.document-label button:hover,
+.document-label.selected button {
+  border-color: #5f9c6c;
+  box-shadow: 0 0 0 3px #6aac7430;
+}
+.document-label.not-matched button {
+  color: #9ca797;
+  background: #f0f3ea;
+}
+.collection-caption {
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.collection-caption strong {
+  display: block;
+  color: #66865e;
+  font: 500 11px var(--mono);
+}
+.collection-caption span {
+  display: block;
+  margin-top: 5px;
+  color: #99a78e;
+  font: 500 7px var(--mono);
+  letter-spacing: 1px;
+}
+.relationship-caption {
+  font: 9px var(--mono);
+  color: #7f94b0;
+  background: #f9fcf5d9;
+  padding: 5px 9px;
+  border: 1px solid #dfe7da;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+.modeling-proof {
+  position: absolute;
+  bottom: 218px;
+  left: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #638460;
+  min-height: 25px;
+  text-align: center;
+  z-index: 3;
+  pointer-events: none;
+}
+.modeling-proof > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #f8fbf3;
+  border: 1px solid #d6e2cc;
+  color: #638a57;
+  font-size: 9px;
+  padding: 5px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: auto;
+}
+.proof-dot {
+  width: 5px;
+  height: 5px;
+  background: #6ca477;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.modeling-hint {
+  position: absolute;
+  bottom: 250px;
+  right: 24px;
+  font-size: 8px;
+  color: #9cae94;
+  pointer-events: none;
+}
+.modeling-playback .playback-content {
+  min-height: 117px;
+}
+.modeling-playback p {
+  max-width: 760px;
+}
+.modeling-stage .playback {
+  max-width: 940px;
+}
+.modeling-speed {
+  border: 1px solid #dce5d4;
+  border-radius: 6px;
+  background: #f6f9f0;
+  padding: 5px 4px;
+  color: #7f9471;
+  font-size: 10px;
+  font-family: var(--mono);
+  cursor: pointer;
+}
+.lesson-source {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #8da280;
+  font-size: 10px;
+}
+.lesson-source:hover {
+  color: #4a814a;
+}
+.modeling-code {
+  max-height: calc(100% - 275px);
+  overflow: auto;
+  bottom: 240px;
+}
+.modeling-code header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.modeling-code pre {
+  font-size: 10px;
+  line-height: 1.7;
+}
+.modeling-inspector {
+  width: 360px;
+  max-height: calc(100% - 260px);
+}
+.modeling-inspector .inspector-heading {
+  padding-bottom: 12px;
+}
+.modeling-inspector h2 {
+  font-size: 19px;
+}
+.document-boundary {
+  padding: 0 18px;
+  font-size: 10px;
+  line-height: 1.7;
+  color: #8c9d80;
+}
+.bson-preview {
+  background: #f0f5e9;
+  border-top: 1px solid #e0e8d5;
+  border-bottom: 1px solid #e0e8d5;
+  margin: 12px 0;
+  padding: 15px 18px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 11px/1.8 var(--mono);
+  color: #58734d;
+}
+.field-key {
+  padding: 0 18px 12px;
+  color: #95a28b;
+  font-size: 9px;
+  line-height: 1.8;
+}
+.field-key code {
+  color: #69895a;
+  font-size: 9px;
+}
+.modeling-inspector .data-caption {
+  font-size: 8px !important;
+  color: #98a78e;
+}
+.reference-stage .modeling-host {
+  bottom: 276px;
+}
+.reference-stage .modeling-proof {
+  bottom: 250px;
+}
+.reference-stage .modeling-hint {
+  bottom: 284px;
+}
+.reference-stage .modeling-code {
+  bottom: 270px;
+}
+.reference-stage .modeling-inspector {
+  max-height: calc(100% - 292px);
+}
+@media (max-width: 1100px) {
+  .learning-mode > span {
+    display: none;
+  }
+  .modeling-proof {
+    font-size: 10px;
+  }
+  .modeling-inspector {
+    width: 320px;
+  }
+  .modeling-hint {
+    display: none;
+  }
+  .modeling-stage .scene-intro p {
+    max-width: 520px;
+  }
+  .modeling-host {
+    bottom: 266px;
+  }
+  .modeling-proof {
+    bottom: 233px;
+  }
+  .reference-stage .modeling-host {
+    bottom: 298px;
+  }
+  .reference-stage .modeling-proof {
+    bottom: 266px;
+  }
+  .modeling-playback .playback-content {
+    min-height: 133px;
+  }
+}
+@media (max-width: 800px) {
+  .learning-mode {
+    position: absolute;
+    bottom: 12px;
+    left: 18px;
+    right: 18px;
+    padding: 8px 12px;
+    justify-content: center;
+  }
+  .learning-mode > span {
+    display: inline;
+  }
+  .brand {
+    font-size: 19px;
+    gap: 7px;
+  }
+  .app-header {
+    padding-left: 14px;
+    padding-right: 14px;
+    gap: 8px;
+  }
+  .brand-mark {
+    width: 26px;
+  }
+  .header-actions {
+    gap: 3px;
+  }
+  .modeling-host {
+    top: 144px;
+    bottom: 288px;
+  }
+  .modeling-stage .scene-intro h1 {
+    font-size: 23px;
+    max-width: 290px;
+  }
+  .modeling-stage .scene-intro {
+    top: 66px;
+  }
+  .modeling-stage .scene-toolbar {
+    top: 58px;
+  }
+  .modeling-playback .playback-content {
+    min-height: 166px;
+  }
+  .modeling-playback p {
+    font-size: 10px;
+    line-height: 1.65;
+  }
+  .modeling-proof {
+    bottom: 269px;
+    left: 15px;
+    right: 15px;
+    font-size: 10px;
+    flex-wrap: wrap;
+    gap: 5px;
+    line-height: 1.5;
+  }
+  .document-label button {
+    font-size: 8px;
+    padding: 4px 6px;
+  }
+  .collection-caption strong {
+    font-size: 9px;
+  }
+  .collection-caption span {
+    font-size: 6px;
+    letter-spacing: 0.5px;
+  }
+  .relationship-caption {
+    font-size: 7px;
+    padding: 4px;
+  }
+  .modeling-inspector {
+    top: 55px;
+    right: 12px;
+    width: calc(100% - 24px);
+    max-height: calc(100% - 342px);
+  }
+  .modeling-code {
+    bottom: 269px;
+    max-height: calc(100% - 331px);
+  }
+  .modeling-stage .command-panel pre {
+    font-size: 10px;
+  }
+  .modeling-stage .document-list {
+    top: 55px;
+    max-height: calc(100% - 340px);
+  }
+  .reference-stage .modeling-host {
+    bottom: 316px;
+  }
+  .reference-stage .modeling-proof {
+    bottom: 298px;
+  }
+  .reference-stage .modeling-code {
+    bottom: 300px;
+  }
+  .reference-stage .modeling-inspector {
+    max-height: calc(100% - 369px);
+  }
+  .modeling-hint {
+    display: none;
+  }
+  .reference-settings {
+    padding-top: 0;
+    padding-bottom: 8px;
+  }
+  .lesson-source {
+    font-size: 9px;
+  }
+  .modeling-inspector h2 {
+    font-size: 18px;
+  }
+}
+.lesson-link > svg,
+.lesson-number {
+  width: 15px;
+  flex-shrink: 0;
+}

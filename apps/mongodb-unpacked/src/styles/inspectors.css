@@ -1,0 +1,327 @@
+.inspector,
+.component-list {
+  position: absolute;
+  right: 73px;
+  top: 23px;
+  width: 284px;
+  max-height: calc(100% - 259px);
+  overflow: auto;
+  z-index: 12;
+  background: #fcfdf9fa;
+  border: 1px solid #d8e2d0;
+  border-radius: 12px;
+  box-shadow: 0 10px 35px #2b47251a;
+  backdrop-filter: blur(16px);
+}
+.inspector-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 13px 7px 18px;
+}
+.inspector-top .eyebrow {
+  font-size: 8px;
+}
+.inspector-top .icon-button {
+  width: 25px;
+  height: 25px;
+}
+.inspector-heading {
+  display: flex;
+  gap: 11px;
+  padding: 7px 18px 17px;
+  align-items: center;
+}
+.component-icon {
+  background: #e8f0e1;
+  color: #6b9468;
+  border: 1px solid #dce6d3;
+  border-radius: 9px;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.component-icon.purple {
+  color: #9c88bb;
+  background: #eeeaf4;
+  border-color: #e3dced;
+}
+.inspector h2 {
+  font-size: 20px;
+  letter-spacing: -0.5px;
+  font-weight: 550;
+  margin: 0 0 5px;
+}
+.inspector-heading p {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: #8c9a81;
+  margin: 0;
+}
+.inspector-tabs {
+  border-top: 1px solid #e6ebdf;
+  border-bottom: 1px solid #e6ebdf;
+  display: flex;
+  padding: 0 18px;
+  gap: 20px;
+}
+.inspector-tabs button {
+  font-size: 10px;
+  background: none;
+  padding: 11px 0 10px;
+  border-bottom: 2px solid transparent;
+  color: #9aa68f;
+}
+.inspector-tabs button.active {
+  border-color: #79a571;
+  color: #507c49;
+}
+.inspector-body {
+  padding: 18px;
+}
+.inspector h3 {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0 0 10px;
+}
+.inspector-body p {
+  font-size: 11px;
+  line-height: 1.8;
+  color: #8a9980;
+  margin: 0 0 15px;
+}
+.inspector-body ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.inspector-body li {
+  font-size: 10px;
+  line-height: 1.65;
+  padding: 7px 0 7px 12px;
+  border-top: 1px solid #e9eee2;
+  color: #829375;
+  position: relative;
+}
+.inspector-body li:before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: #77a066;
+}
+.version-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid #e1e9d9;
+  background: #f5f8ef;
+  border-radius: 7px;
+  margin-top: 16px;
+  padding: 11px 8px;
+  gap: 5px;
+}
+.version-grid div {
+  text-align: center;
+}
+.version-grid span {
+  font-size: 8px;
+  color: #97a38a;
+  display: block;
+  margin-bottom: 6px;
+}
+.version-grid strong {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: #6e9060;
+}
+.inspector-fact {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #e1e9d9;
+  margin-top: 15px;
+  padding-top: 14px;
+  font-size: 10px;
+  color: #8b9b7e;
+}
+.inspector-fact strong {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #638653;
+  font-weight: 500;
+}
+.inspector-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 17px;
+  border-top: 1px solid #e6ebdf;
+}
+.inspector-bottom .button {
+  padding: 7px 9px;
+  font-size: 10px;
+}
+.inspector-bottom a {
+  display: flex;
+  gap: 6px;
+  color: #8ba07c;
+}
+.data-caption {
+  font-family: var(--mono) !important;
+  font-size: 9px !important;
+}
+.data-view table {
+  font-size: 9px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+}
+.data-view th {
+  text-align: left;
+  font-weight: 500;
+  color: #99a78c;
+  border-bottom: 1px solid #e2e9d9;
+  padding: 7px 0;
+}
+.data-view td {
+  padding: 9px 0;
+  border-bottom: 1px solid #e8eede;
+  color: #6c8a5c;
+}
+.metadata-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #9284a7;
+  background: #f0ecf5;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 9px;
+  line-height: 1.6;
+}
+.doc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.doc-item {
+  padding: 10px;
+  border: 1px solid #e0e8d8;
+  background: #f8faf3;
+  border-radius: 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.doc-item > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.doc-item code {
+  font-size: 9px;
+  color: #9aaa8d;
+}
+.doc-item strong {
+  font-size: 11px;
+  font-weight: 500;
+}
+.doc-item > span {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: #7c9570;
+}
+.status-open,
+.status-closed {
+  font-size: 8px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  color: #709460;
+  background: #e6efdd;
+}
+.status-closed {
+  color: #a6ac98;
+  background: #eef1e7;
+}
+.component-list {
+  padding-bottom: 10px;
+}
+.component-list > p {
+  font-size: 10px;
+  color: #97a58d;
+  line-height: 1.7;
+  margin: 4px 18px 12px;
+}
+.component-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 13px;
+  background: transparent;
+  width: calc(100% - 18px);
+  margin: 0 9px;
+  border-radius: 6px;
+  text-align: left;
+}
+.component-row:hover {
+  background: #eef4e6;
+}
+.component-row > span:nth-child(2) {
+  flex: 1;
+}
+.component-row strong {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+}
+.component-row small {
+  display: block;
+  font-size: 8px;
+  font-family: var(--mono);
+  margin-top: 3px;
+  color: #9baa8e;
+}
+.component-row > svg {
+  color: #a5b398;
+}
+.component-mini {
+  width: 26px;
+  height: 29px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7c9c6b;
+  background: #e9f0e0;
+}
+.component-mini.purple {
+  color: #a08db9;
+  background: #efebf4;
+}
+.graphics-error {
+  position: absolute;
+  inset: 160px 50px 260px;
+  z-index: 30;
+  background: #fafcf5f5;
+  border: 1px solid #d1ddc9;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+}
+.graphics-error p {
+  font-size: 12px;
+  color: #839477;
+}
+.graphics-error h2 {
+  font-size: 18px;
+}
+.button.primary {
+  background: #245d3c;
+  color: #fff;
+}

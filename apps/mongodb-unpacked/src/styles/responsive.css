@@ -1,0 +1,456 @@
+@media (min-width: 1600px) {
+  .lesson-sidebar {
+    width: 280px;
+  }
+  .lesson-link {
+    min-height: 70px;
+  }
+  .lesson-link strong {
+    font-size: 13px;
+  }
+  .lesson-link small {
+    font-size: 11px;
+  }
+  .scene-intro h1 {
+    font-size: 35px;
+  }
+  .playback {
+    bottom: 30px;
+  }
+  .scene-intro {
+    left: 40px;
+    top: 35px;
+  }
+  .scene-legend {
+    left: 40px;
+    top: 147px;
+  }
+  .process-label button {
+    padding: 6px 10px;
+  }
+  .node-name {
+    font-size: 11px;
+  }
+  .node-role {
+    font-size: 9px;
+  }
+}
+@media (max-height: 820px) and (min-width: 801px) {
+  .sidebar-note {
+    display: none;
+  }
+  .sidebar-footer {
+    margin-top: auto;
+  }
+  .sidebar-top {
+    padding-top: 20px;
+  }
+  .lesson-link {
+    min-height: 59px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .scene-intro h1 {
+    font-size: 25px;
+  }
+  .scene-intro {
+    top: 23px;
+  }
+  .scene-legend {
+    top: 119px;
+  }
+  .playback-content {
+    min-height: 102px;
+    padding-top: 15px;
+  }
+  .camera-hint {
+    bottom: 225px;
+  }
+  .playback {
+    bottom: 14px;
+  }
+}
+@media (max-width: 1100px) {
+  .app-header {
+    padding: 0 18px;
+    gap: 12px;
+  }
+  .brand {
+    min-width: 202px;
+    font-size: 19px;
+  }
+  .topology-switch button {
+    padding: 9px 9px;
+    font-size: 10px;
+    gap: 5px;
+  }
+  .lesson-sidebar {
+    width: 220px;
+  }
+  .sidebar-top {
+    padding-left: 17px;
+    padding-right: 17px;
+  }
+  .lesson-list {
+    padding: 0 8px;
+  }
+  .lesson-link {
+    gap: 7px;
+    padding-left: 9px;
+    padding-right: 8px;
+  }
+  .lesson-link strong {
+    font-size: 11px;
+  }
+  .lesson-link small {
+    font-size: 9px;
+  }
+  .lesson-icon {
+    width: 26px;
+  }
+  .lesson-number {
+    font-size: 8px;
+  }
+  .header-actions .components-button {
+    font-size: 10px;
+    padding: 8px;
+  }
+  .scene-intro {
+    left: 23px;
+  }
+  .scene-intro h1 {
+    font-size: 25px;
+  }
+  .scene-intro p {
+    font-size: 10px;
+    max-width: 330px;
+    line-height: 1.6;
+  }
+  .scene-legend {
+    left: 23px;
+    gap: 10px;
+    font-size: 8px;
+  }
+  .playback {
+    left: 16px;
+    right: 16px;
+  }
+  .playback-content {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .playback h2 {
+    font-size: 16px;
+  }
+  .playback p {
+    font-size: 10px;
+  }
+  .playback-content {
+    min-height: 120px;
+  }
+  .command-panel {
+    left: 16px;
+    bottom: 233px;
+  }
+  .camera-hint {
+    display: none;
+  }
+  .inspector,
+  .component-list {
+    right: 64px;
+    width: 267px;
+    max-height: calc(100% - 260px);
+  }
+  .has-inspector .scene-intro {
+    opacity: 0.25;
+  }
+  .has-inspector .scene-legend {
+    opacity: 0.2;
+  }
+  .island-label strong {
+    font-size: 9px;
+  }
+  .island-label span {
+    font-size: 8px;
+  }
+  .process-label button {
+    padding: 4px 6px;
+  }
+  .node-name {
+    font-size: 9px;
+  }
+  .node-role {
+    font-size: 8px;
+  }
+}
+@media (max-width: 800px) {
+  .app-shell {
+    min-height: 760px;
+    height: 100dvh;
+  }
+  .app-header {
+    height: 115px;
+    position: relative;
+    align-items: flex-start;
+    padding-top: 15px;
+  }
+  .brand {
+    font-size: 20px;
+    min-width: 0;
+  }
+  .brand small {
+    font-size: 7px;
+  }
+  .brand-mark {
+    transform: scale(0.88);
+  }
+  .header-actions {
+    margin-top: 2px;
+  }
+  .header-actions .components-button span {
+    display: none;
+  }
+  .header-actions .components-button {
+    padding: 8px;
+  }
+  .topology-switch {
+    position: absolute;
+    bottom: 12px;
+    left: 18px;
+    right: 18px;
+    justify-content: center;
+  }
+  .topology-switch button {
+    flex: 1;
+    font-size: 11px;
+    padding: 7px;
+  }
+  .lesson-sidebar {
+    display: none;
+  }
+  .mobile-lesson {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 47px;
+    z-index: 15;
+    align-items: center;
+    gap: 11px;
+    background: #f7faf1ef;
+    border-bottom: 1px solid #dbe6d3;
+    padding: 0 17px;
+  }
+  .mobile-lesson label {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: #93a584;
+    text-transform: uppercase;
+  }
+  .mobile-lesson select {
+    border: 0;
+    border-radius: 5px;
+    background: #edf3e6;
+    padding: 5px 8px;
+    color: #598044;
+    font-size: 11px;
+    flex: 1;
+    min-width: 0;
+  }
+  .scene-intro {
+    top: 68px;
+    left: 20px;
+  }
+  .scene-intro h1 {
+    font-size: 24px;
+    margin-top: 11px;
+  }
+  .scene-intro p {
+    display: none;
+  }
+  .scene-kicker {
+    font-size: 8px;
+    gap: 6px;
+  }
+  .scene-kicker code {
+    font-size: 8px;
+  }
+  .scene-legend {
+    top: 140px;
+    left: 20px;
+    font-size: 8px;
+    gap: 13px;
+  }
+  .scene-toolbar {
+    top: 63px;
+    right: 14px;
+  }
+  .scene-toolbar .icon-button {
+    width: 25px;
+    height: 27px;
+  }
+  .playback {
+    bottom: 13px;
+    left: 12px;
+    right: 12px;
+  }
+  .playback-content {
+    padding: 15px 14px 12px;
+    min-height: 123px;
+  }
+  .playback h2 {
+    font-size: 16px;
+    max-width: 100%;
+    line-height: 1.35;
+  }
+  .playback p {
+    font-size: 11px;
+    line-height: 1.6;
+  }
+  .code-toggle {
+    padding: 5px;
+  }
+  .code-toggle span {
+    display: none;
+  }
+  .transport {
+    padding: 9px 10px;
+    gap: 4px;
+  }
+  .transport-main {
+    gap: 3px;
+  }
+  .transport-options {
+    gap: 9px;
+  }
+  .play-button {
+    min-width: 97px;
+    font-size: 10px;
+    padding: 9px 11px;
+  }
+  .transport .icon-button {
+    width: 24px;
+  }
+  .reset-button,
+  .transport-divider {
+    display: none;
+  }
+  .follow-toggle {
+    font-size: 9px;
+    gap: 3px;
+  }
+  .follow-toggle svg {
+    display: none;
+  }
+  .timeline {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .command-panel {
+    bottom: 247px;
+    left: 12px;
+    width: calc(100% - 24px);
+    max-height: calc(100% - 410px);
+    overflow: auto;
+  }
+  .command-panel pre {
+    font-size: 10px;
+    padding: 13px;
+  }
+  .inspector,
+  .component-list {
+    right: 13px;
+    top: 62px;
+    width: min(286px, calc(100% - 26px));
+    max-height: calc(100% - 326px);
+  }
+  .has-inspector .scene-intro {
+    visibility: hidden;
+  }
+  .has-inspector .scene-legend {
+    visibility: hidden;
+  }
+  .about-modal {
+    padding: 27px;
+    max-height: 90dvh;
+  }
+  .about-modal > h2 {
+    font-size: 29px;
+  }
+  .modal-backdrop {
+    padding: 17px;
+  }
+  .boundary-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .scene-host {
+    bottom: 75px;
+    top: 105px;
+  }
+  .process-label button {
+    min-width: 57px;
+    padding: 4px 5px;
+  }
+  .node-name {
+    font-size: 9px;
+  }
+  .node-role {
+    font-size: 8px;
+  }
+  .island-label strong {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+  .island-label span {
+    font-size: 7px;
+  }
+  .label-value {
+    font-size: 8px;
+  }
+  .island-label {
+    transform: translateY(4px);
+  }
+  .graphics-error {
+    inset: 160px 25px 290px;
+  }
+  .read-settings {
+    font-size: 9px;
+    gap: 12px;
+    padding: 0 14px 10px;
+  }
+  .read-settings code,
+  .read-settings select {
+    font-size: 9px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+  .timeline button span {
+    transition: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .process-label.is-secondary:not(.is-selected),
+  .process-label[data-node='r2']:not(.is-selected) {
+    visibility: hidden;
+  }
+  .island-label strong {
+    font-size: 9px;
+  }
+  .island-label span {
+    font-size: 8px;
+  }
+  .node-name {
+    font-size: 10px;
+  }
+  .node-role {
+    font-size: 9px;
+  }
+}

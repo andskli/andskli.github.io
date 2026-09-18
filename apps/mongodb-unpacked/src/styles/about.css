@@ -1,0 +1,94 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: #18302566;
+  backdrop-filter: blur(6px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  overflow: auto;
+}
+.about-modal {
+  position: relative;
+  width: min(650px, 100%);
+  background: #fafcf5;
+  border: 1px solid #e4eadc;
+  border-radius: 18px;
+  padding: 38px;
+  box-shadow: 0 20px 80px #10281922;
+  max-height: 90dvh;
+  overflow: auto;
+}
+.modal-close {
+  position: absolute;
+  right: 17px;
+  top: 17px;
+}
+.about-modal > h2 {
+  font-size: 35px;
+  letter-spacing: -1.4px;
+  line-height: 1.15;
+  font-weight: 500;
+  margin: 18px 0;
+}
+.about-modal > p {
+  font-size: 12px;
+  color: #849477;
+  line-height: 1.85;
+}
+.boundary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 22px 0;
+  border-top: 1px solid #e1e8d8;
+  border-bottom: 1px solid #e1e8d8;
+  margin: 24px 0 18px;
+}
+.boundary-grid h3 {
+  font-size: 12px;
+  margin: 0 0 8px;
+}
+.boundary-grid p {
+  font-size: 11px;
+  line-height: 1.8;
+  color: #8f9d81;
+  margin: 0;
+}
+.small-note {
+  font-size: 10px !important;
+  color: #99a78d !important;
+}
+.source-links {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 22px 0;
+}
+.source-links a {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  padding: 7px 9px;
+  border: 1px solid #dce5d2;
+  border-radius: 6px;
+  color: #6a8859;
+}
+.source-links a:hover {
+  background: #eaf1e0;
+}
+.about-modal footer {
+  font-size: 9px;
+  color: #a2ad97;
+  line-height: 1.8;
+}
+.about-modal footer a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.mobile-lesson {
+  display: none;
+}

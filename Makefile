@@ -17,10 +17,13 @@ diagrams-force:
 diagrams-check:
 	./scripts/build-diagrams.sh --check
 
-serve: diagrams
+mongodb-unpacked:
+	./scripts/build-mongodb-unpacked.sh
+
+serve: diagrams mongodb-unpacked
 	$(ZOLA_CMD) serve --interface 0.0.0.0 --port 8080 --base-url localhost --drafts
 
-build: diagrams social-cards
+build: diagrams social-cards mongodb-unpacked
 	$(ZOLA_CMD) build
 
 social-cards:
@@ -29,4 +32,4 @@ social-cards:
 social-cards-force:
 	python3 scripts/generate-social-cards.py --force
 
-.PHONY: init diagrams diagrams-force diagrams-check serve build social-cards social-cards-force
+.PHONY: init mongodb-unpacked diagrams diagrams-force diagrams-check serve build social-cards social-cards-force
