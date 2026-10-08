@@ -1,6 +1,6 @@
 # MongoDB in Motion
 
-A standalone 3D educational app explaining MongoDB from document design to distributed architecture. Six data-modeling lessons introduce BSON documents, polymorphism, embedding, references, access patterns, and indexes; eight architecture lessons explore processes, replica sets, routers, and shards.
+A standalone 3D educational app explaining MongoDB from document design to distributed architecture. Six data-modeling lessons introduce BSON documents, polymorphism, embedding, references, access patterns, and indexes; eight architecture lessons explore processes, replica sets, routers, and shards; a Features section follows individual MongoDB capabilities, starting with change streams.
 
 ## Run
 
@@ -33,7 +33,7 @@ From the repository root, `make mongodb-in-motion` installs locked dependencies,
 
 ## Explore
 
-- Use the permanent main navigation: **Data modeling**, **One server**, **Replica set**, and **Sharded cluster**. The sidebar and mobile lesson picker show lessons for the selected section. Returning to Data modeling remembers the last selected modeling lesson.
+- Use the permanent main navigation: **Data modeling**, **One server**, **Replica set**, **Sharded cluster**, and **Features**. The sidebar and mobile lesson picker show lessons for the selected section. Returning to Data modeling remembers the last selected modeling lesson.
 - Play, pause, rewind, step forward, change playback speed, or replay any lesson.
 - Drag the scene to orbit; scroll to zoom. Use the fit-view button to return home.
 - Select a process or use **Components** to inspect its role, locally applied documents, or routing metadata.
@@ -66,25 +66,34 @@ Select a document in 3D or use **Documents** in the header to read its full cont
 7. Explore config-server replication, routing metadata, caching, and the balancer coordinator.
 8. Copy a data range, commit its new ownership, refresh the router, and clean up donor copies.
 
+## Feature lessons
+
+Features are capability-focused lessons with their own model and scene, separate from the document and cluster models.
+
+1. **Change streams:** a producer writes to a primary, each write becomes an oplog entry, and a stream cursor turns matching entries into change events for a consumer. The **Event** panel shows each event exactly as the server would send it (`_id` resume token, `operationType`, `fullDocument`, `updateDescription`). Two selectors change the lesson: `fullDocument` (`default` reports only the update delta; `updateLookup` adds the current document) and the stream pipeline (none, `$match` inserts, or `$match` on `fullDocument.status`). The steps cover inserts, update deltas, deletes, server-side filtering, processing then saving the resume token, a consumer that falls behind, a crash and `resumeAfter` replay, an outage that outlasts the capped oplog (`ChangeStreamHistoryLost`, code 286), and restarting with a resync.
+
 ## Source structure
 
 The app separates lesson content, deterministic model operations, playback, React UI, and Three.js rendering. Start with [Adding a lesson](docs/adding-a-lesson.md) for a complete example and the extension workflow.
 
 ```text
 src/
-  app/                  Application shell and the two domain players
+  app/                  Application shell and the three domain players
   learning/             Lesson registry, step contracts, playback, keyboard controls
   lessons/
     architecture/       Eight scenarios, topology helpers, model types and fixtures
     data-modeling/      Six scenarios, document types and shared fixture helpers
       indexes/          lesson.ts, fixtures.ts, operations.ts, lesson.test.ts
+    features/           Capability lessons, model types, step builder and sources
+      change-streams/   lesson.ts, operations.ts (oplog, stream, resume), lesson.test.ts
   components/
     navigation/         Main sections, sidebar, mobile picker
     playback/           Timeline, transport and scenario comparison controls
-    inspectors/         Components, documents, query results and indexes
+    inspectors/         Components, documents, query results, indexes and change events
   scenes/
     cluster/            Cluster renderer, procedural objects, layout and palette
     documents/          Document renderer, glyph catalog and canvas textures
+    features/           Change-stream renderer: oplog rail, cursor and token markers
     shared/             Canvas lifecycle and resource disposal
   styles/               Formatted styles grouped by responsibility
 ```
@@ -112,6 +121,8 @@ This is an independent educational simulation. It does not run MongoDB binaries,
 
 Data-modeling lessons use fixed illustrative operations, not a query engine or live validation. The access-pattern redesign is a completed design comparison, not an automatic migration. The index board shows logical keys and document labels, not physical B-tree pages or storage addresses. Index counts are illustrative; matching keys are not claimed to equal totalKeysExamined. Hints force teaching comparisons, while actual optimizer choices and timings require explain() on representative data. The default _id index remains present; the tags lesson adds an index without dropping the compound index. Canvas cards abbreviate longer values; inspectors show the complete modeled documents. References use integer IDs for readability, and the lookup lesson shows result arrays without mutating stored orders. Draft checkout input is not counted as a stored document. Embedding examples are bounded and discuss the 16 MiB document limit, historical snapshots, and manual-reference consistency.
 
+The change-stream lesson uses a deterministic model of a single replica-set primary and one consumer; it does not run a real change stream. Oplog positions (`#101`) are teaching counters, not real cluster timestamps, and resume tokens are fixed-width stand-ins rather than the server's encoded keys. Events omit fields such as `wallTime`. The oplog is capped at seven entries so that rollover is visible; real oplogs are sized in gigabytes and retention depends on write volume. A resume succeeds in the model when the token's position is still retained. After a drained batch the consumer saves the stream's position, as drivers do with `postBatchResumeToken`. Majority-commit visibility, failover, sharded `mongos` merging, invalidate events, and pre/post-images are described but not animated.
+
 Each depicted replica set has three voting, data-bearing members. Config servers use the dedicated-config-server topology. Reads use primary preference unless the secondary-read lesson is selected. The secondary-read example freezes a transient state: a member has locally applied v2 while its majority-committed view remains at v1. Majority read concern does not imply the latest value or a vote on each query.
 
 The aggregation example uses a small `$match`/`$group` pipeline with `allowDiskUse: false`; it merges on mongos. Other pipelines, options, and execution plans can put the merger on a shard. Migration omits concurrent writes, detailed critical-section mechanics, and cleanup scheduling. It distinguishes copied data from committed ownership and final cleanup.
@@ -128,6 +139,10 @@ The aggregation example uses a small `$match`/`$group` pipeline with `allowDiskU
 - [Referenced relationships](https://www.mongodb.com/docs/manual/tutorial/model-referenced-one-to-many-relationships-between-documents/)
 - [$lookup](https://www.mongodb.com/docs/manual/reference/operator/aggregation/lookup/)
 - [Schema validation](https://www.mongodb.com/docs/manual/core/schema-validation/)
+
+- [Change streams](https://www.mongodb.com/docs/manual/changeStreams/)
+- [Change events](https://www.mongodb.com/docs/manual/reference/change-events/)
+- [The oplog](https://www.mongodb.com/docs/manual/core/replica-set-oplog/)
 
 - [MongoDB replication](https://www.mongodb.com/docs/manual/replication/)
 - [MongoDB sharding](https://www.mongodb.com/docs/manual/sharding/)

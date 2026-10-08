@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { architectureLessons, modelingLessons } from './lesson-registry.ts';
+import {
+  architectureLessons,
+  featureLessons,
+  modelingLessons,
+} from './lesson-registry.ts';
 
 test('registered lessons have unique stable steps and every shortcut resolves for every option', () => {
   for (const [id, definition] of Object.entries(architectureLessons)) {
@@ -15,6 +19,19 @@ test('registered lessons have unique stable steps and every shortcut resolves fo
           id,
         );
         assert.ok(lesson.steps.every((step) => step.id.length > 0));
+      }
+  }
+  for (const [id, definition] of Object.entries(featureLessons)) {
+    assert.equal(definition.id, id);
+    for (const fullDocument of ['default', 'updateLookup'] as const)
+      for (const filter of ['none', 'inserts', 'open'] as const) {
+        const lesson = definition.build({ fullDocument, filter });
+        assert.ok(lesson.steps.length > 0);
+        assert.equal(
+          new Set(lesson.steps.map((step) => step.id)).size,
+          lesson.steps.length,
+          id,
+        );
       }
   }
   for (const [id, definition] of Object.entries(modelingLessons)) {

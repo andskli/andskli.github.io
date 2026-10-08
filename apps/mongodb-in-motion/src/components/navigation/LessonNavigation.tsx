@@ -28,7 +28,9 @@ export function LessonSidebar({
     <aside className="lesson-sidebar">
       <div className="sidebar-top">
         <span className="eyebrow">EXPLORE THE SYSTEM</span>
-        <span className="lesson-count">{lessons.length} lessons</span>
+        <span className="lesson-count">
+          {lessons.length} {lessons.length === 1 ? 'lesson' : 'lessons'}
+        </span>
       </div>
       <nav className="lesson-list" aria-label="Guided lessons">
         <section className="lesson-section">

@@ -1,26 +1,39 @@
-import { Box, Boxes, Braces, Info, Layers, Network } from 'lucide-react';
+import { Box, Boxes, Braces, Info, Layers, Network, Radio } from 'lucide-react';
+import type { MainSection } from '../../app/sections.ts';
 import { topologyNames } from '../../app/sections.ts';
-import type { Topology } from '../../lessons/architecture/types.ts';
 interface Props {
-  modeling: boolean;
-  topology: Topology;
-  componentsOpen: boolean;
+  section: MainSection;
+  /** Whether the section's inspector panel (components, documents or events) is open. */
+  panelOpen: boolean;
   onHome: () => void;
-  onModeling: () => void;
-  onTopology: (topology: Topology) => void;
+  onSection: (section: MainSection) => void;
   onInspect: () => void;
   onAbout: () => void;
 }
+const tabs: { id: MainSection; label: string; short: string; Icon: typeof Box }[] = [
+  { id: 'modeling', label: 'Data modeling', short: 'Modeling', Icon: Braces },
+  { id: 'standalone', label: topologyNames.standalone, short: 'One server', Icon: Box },
+  { id: 'replica', label: topologyNames.replica, short: 'Replica', Icon: Layers },
+  { id: 'sharded', label: topologyNames.sharded, short: 'Sharded', Icon: Network },
+  { id: 'features', label: 'Features', short: 'Features', Icon: Radio },
+];
+const inspectLabels: Record<'modeling' | 'features' | 'architecture', string> = {
+  modeling: 'Documents',
+  features: 'Event',
+  architecture: 'Components',
+};
 export default function AppHeader({
-  modeling,
-  topology,
-  componentsOpen,
+  section,
+  panelOpen,
   onHome,
-  onModeling,
-  onTopology,
+  onSection,
   onInspect,
   onAbout,
 }: Props) {
+  const inspectKind =
+    section === 'modeling' || section === 'features' ? section : 'architecture';
+  const InspectIcon =
+    inspectKind === 'architecture' ? Boxes : inspectKind === 'features' ? Radio : Braces;
   return (
     <header className="app-header">
       <a
@@ -43,44 +56,32 @@ export default function AppHeader({
         </span>
       </a>
       <nav className="topology-switch main-navigation" aria-label="Main navigation">
-        <button
-          aria-pressed={modeling}
-          className={modeling ? 'active' : ''}
-          onClick={() => {
-            if (!modeling) onModeling();
-          }}
-        >
-          <Braces size={15} />
-          <span>Data modeling</span>
-        </button>
-        {(['standalone', 'replica', 'sharded'] as Topology[]).map((value) => {
-          const active = !modeling && value === topology,
-            Icon = value === 'standalone' ? Box : value === 'replica' ? Layers : Network;
+        {tabs.map(({ id, label, short, Icon }) => {
+          const active = id === section;
           return (
             <button
-              key={value}
+              key={id}
               aria-pressed={active}
               className={active ? 'active' : ''}
               onClick={() => {
-                if (!active) onTopology(value);
+                if (!active) onSection(id);
               }}
             >
               <Icon size={15} />
-              <span>{topologyNames[value]}</span>
+              <span className="tab-full">{label}</span>
+              <span className="tab-short">{short}</span>
             </button>
           );
         })}
       </nav>
       <div className="header-actions">
         <button
-          aria-label={modeling ? 'Documents' : 'Components'}
-          className={
-            'button quiet components-button ' + (componentsOpen ? 'pressed' : '')
-          }
+          aria-label={inspectLabels[inspectKind]}
+          className={'button quiet components-button ' + (panelOpen ? 'pressed' : '')}
           onClick={onInspect}
         >
-          {modeling ? <Braces size={16} /> : <Boxes size={16} />}
-          <span>{modeling ? 'Documents' : 'Components'}</span>
+          <InspectIcon size={16} />
+          <span>{inspectLabels[inspectKind]}</span>
         </button>
         <button
           className="icon-button about-button"

@@ -1,6 +1,23 @@
 .main-navigation button {
   flex-shrink: 0;
 }
+.main-navigation .tab-short {
+  display: none;
+}
+@media (max-width: 560px) {
+  .main-navigation .tab-full {
+    display: none;
+  }
+  .main-navigation .tab-short {
+    display: inline;
+  }
+}
+/* Five main tabs: drop icons before the labels start to crowd the header actions. */
+@media (max-width: 1000px) {
+  .main-navigation button svg {
+    display: none;
+  }
+}
 @media (max-width: 800px) {
   .main-navigation {
     left: 12px;

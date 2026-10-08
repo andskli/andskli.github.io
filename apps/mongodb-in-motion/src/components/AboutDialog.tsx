@@ -1,6 +1,15 @@
 import { ExternalLink, X } from 'lucide-react';
 import { sourceLinks } from '../lessons/architecture/sources.ts';
 import { modelingSources } from '../lessons/data-modeling/sources.ts';
+import { featureSources } from '../lessons/features/sources.ts';
+const sourceLabels: Record<string, string> = {
+  concern: 'Read concern',
+  config: 'Config servers',
+  aggregate: 'Aggregation',
+  changeStreams: 'Change streams',
+  changeEvents: 'Change events',
+  oplog: 'Oplog',
+};
 export default function AboutDialog({ onClose }: { onClose: () => void }) {
   return (
     <div className="modal-backdrop" onClick={() => onClose()}>
@@ -36,15 +45,17 @@ export default function AboutDialog({ onClose }: { onClose: () => void }) {
               Document structure, polymorphism, embedding, manual references, access
               patterns, compound and multikey indexes, routing, document placement, oplog
               replication, majority acknowledgements, elections, read visibility, split
-              aggregation, and range ownership.
+              aggregation, range ownership, and change streams: events, resume tokens, and
+              oplog retention.
             </p>
           </div>
           <div>
             <h3>What is simplified</h3>
             <p>
-              Network and election timing, storage internals, driver retries, and
-              migration concurrency. It does not execute MongoDB binaries, arbitrary
-              queries, or a complete distributed protocol.
+              Network and election timing, storage internals, driver retries, migration
+              concurrency, and the real shape of resume tokens and cluster times. It does
+              not execute MongoDB binaries, arbitrary queries, or a complete distributed
+              protocol.
             </p>
           </div>
         </div>
@@ -55,20 +66,16 @@ export default function AboutDialog({ onClose }: { onClose: () => void }) {
           operations, not a measured byte count.
         </p>
         <div className="source-links">
-          {[...Object.entries(sourceLinks), ...Object.entries(modelingSources)].map(
-            ([name, url]) => (
-              <a href={url} key={name} target="_blank" rel="noreferrer">
-                {name === 'concern'
-                  ? 'Read concern'
-                  : name === 'config'
-                    ? 'Config servers'
-                    : name === 'aggregate'
-                      ? 'Aggregation'
-                      : name[0].toUpperCase() + name.slice(1)}
-                <ExternalLink size={13} />
-              </a>
-            ),
-          )}
+          {[
+            ...Object.entries(sourceLinks),
+            ...Object.entries(modelingSources),
+            ...Object.entries(featureSources),
+          ].map(([name, url]) => (
+            <a href={url} key={name} target="_blank" rel="noreferrer">
+              {sourceLabels[name] ?? name[0].toUpperCase() + name.slice(1)}
+              <ExternalLink size={13} />
+            </a>
+          ))}
         </div>
         <footer>
           Inspired by{' '}

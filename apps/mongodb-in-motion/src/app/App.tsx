@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import AboutDialog from '../components/AboutDialog.tsx';
 import AppHeader from '../components/navigation/AppHeader.tsx';
 import {
@@ -7,48 +7,57 @@ import {
 } from '../components/navigation/LessonNavigation.tsx';
 import {
   architectureLessons,
+  featureLessons,
   lessonIds,
   modelingLessons,
 } from '../learning/lesson-registry.ts';
 import type { LessonId, Topology } from '../lessons/architecture/types.ts';
 import type { ModelingId } from '../lessons/data-modeling/types.ts';
+import type { FeatureId } from '../lessons/features/types.ts';
 import ArchitectureView from './ArchitectureView.tsx';
+import FeaturesView from './FeaturesView.tsx';
 import ModelingView from './ModelingView.tsx';
-import { topologyNames } from './sections.ts';
+import type { MainSection } from './sections.ts';
+import { isTopology, topologyNames } from './sections.ts';
 export default function App() {
-  const [modeling, setModeling] = useState<ModelingId | null>('documents');
-  // null switches to architecture; remember where the Data modeling tab should return.
-  const lastModeling = useRef<ModelingId>('documents');
+  const [section, setSection] = useState<MainSection>('modeling');
+  // Each section remembers its own selection, so returning to a tab restores the lesson.
+  const [modeling, setModeling] = useState<ModelingId>('documents');
+  const [feature, setFeature] = useState<FeatureId>('changeStreams');
   const [topology, setTopology] = useState<Topology>('sharded');
   const [lessonId, setLessonId] = useState<LessonId>('write');
   // A repeat click on the current lesson still restarts it, even though its ID is unchanged.
   const [revision, setRevision] = useState(0);
   const [documentsOpen, setDocumentsOpen] = useState(false),
     [components, setComponents] = useState(false),
+    // The event panel is a side panel; start it closed where it would cover the scene.
+    [events, setEvents] = useState(() => window.innerWidth >= 1280),
     [about, setAbout] = useState(false);
-  const isModeling = modeling !== null;
+  const isModeling = section === 'modeling';
+  const isFeatures = section === 'features';
   function resetPanels() {
     setDocumentsOpen(false);
     setComponents(false);
     setRevision((value) => value + 1);
   }
-  function chooseModeling(id: ModelingId) {
-    lastModeling.current = id;
-    setModeling(id);
-    resetPanels();
-  }
-  function chooseTopology(value: Topology) {
-    setModeling(null);
-    setTopology(value);
-    setLessonId('write');
+  function chooseSection(value: MainSection) {
+    if (isTopology(value)) {
+      setTopology(value);
+      setLessonId('write');
+    }
+    setSection(value);
     resetPanels();
   }
   function chooseLesson(id: string) {
-    if (isModeling) chooseModeling(id as ModelingId);
-    else {
-      setLessonId(id as LessonId);
-      resetPanels();
-    }
+    if (isModeling) setModeling(id as ModelingId);
+    else if (isFeatures) setFeature(id as FeatureId);
+    else setLessonId(id as LessonId);
+    resetPanels();
+  }
+  function toggleInspector() {
+    if (isModeling) setDocumentsOpen((value) => !value);
+    else if (isFeatures) setEvents((value) => !value);
+    else setComponents((value) => !value);
   }
   useEffect(() => {
     const escape = (event: KeyboardEvent) => {
@@ -59,38 +68,43 @@ export default function App() {
   }, []);
   const lessons = isModeling
     ? Object.values(modelingLessons)
-    : lessonIds(topology).map((id) => architectureLessons[id]);
-  const activeLesson = modeling ?? lessonId;
+    : isFeatures
+      ? Object.values(featureLessons)
+      : lessonIds(topology).map((id) => architectureLessons[id]);
+  const activeLesson = isModeling ? modeling : isFeatures ? feature : lessonId;
   const mobilePicker = (
     <MobileLessonPicker lessons={lessons} active={activeLesson} onSelect={chooseLesson} />
   );
   return (
     <div className="app-shell">
       <AppHeader
-        modeling={isModeling}
-        topology={topology}
-        componentsOpen={components}
-        onHome={() => chooseModeling('documents')}
-        onModeling={() => chooseModeling(lastModeling.current)}
-        onTopology={chooseTopology}
-        onInspect={() =>
-          isModeling
-            ? setDocumentsOpen((value) => !value)
-            : setComponents((value) => !value)
-        }
+        section={section}
+        panelOpen={isModeling ? documentsOpen : isFeatures ? events : components}
+        onHome={() => {
+          setModeling('documents');
+          chooseSection('modeling');
+        }}
+        onSection={chooseSection}
+        onInspect={toggleInspector}
         onAbout={() => setAbout(true)}
       />
       <div className="workspace">
         <LessonSidebar
           lessons={lessons}
           active={activeLesson}
-          title={isModeling ? 'Data modeling' : topologyNames[topology]}
+          title={
+            isModeling
+              ? 'Data modeling'
+              : isFeatures
+                ? 'Features'
+                : topologyNames[topology]
+          }
           modeling={isModeling}
           onSelect={chooseLesson}
           onAbout={() => setAbout(true)}
         />
-        {/* Modeling starts fresh per lesson/revision, including local options and inspectors. */}
-        {modeling && (
+        {/* Modeling and features start fresh per lesson/revision, including local options. */}
+        {isModeling && (
           <ModelingView
             key={modeling + '-' + revision}
             id={modeling}
@@ -100,9 +114,18 @@ export default function App() {
             modalOpen={about}
           />
         )}
+        {isFeatures && (
+          <FeaturesView
+            key={feature + '-' + revision}
+            id={feature}
+            mobilePicker={mobilePicker}
+            eventsOpen={events}
+            modalOpen={about}
+          />
+        )}
         {/* Keep architecture preferences mounted; the inactive view releases its 3D scene. */}
         <ArchitectureView
-          active={!isModeling}
+          active={isTopology(section)}
           topology={topology}
           lessonId={lessonId}
           revision={revision}

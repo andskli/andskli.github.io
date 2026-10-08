@@ -10,6 +10,7 @@ import {
   MousePointer2,
   Network,
   PanelsTopLeft,
+  Radio,
   Search,
   Settings2,
   Shapes,
@@ -31,4 +32,5 @@ export const lessonIcons = {
   reference: Link2,
   pointer: MousePointer2,
   index: ListTree,
+  stream: Radio,
 } satisfies Record<LessonIcon, typeof Database>;

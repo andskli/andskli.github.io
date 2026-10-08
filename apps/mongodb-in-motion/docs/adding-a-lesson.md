@@ -4,6 +4,7 @@ Start with a question the learner should be able to answer, then choose the mode
 
 - **Data modeling** uses documents, collection trays, relationships, query results, and optional workload/index displays.
 - **Architecture** uses processes, replica-set state, routing metadata, and flows between nodes.
+- **Features** follow one capability end to end with a purpose-built model and scene (currently change streams).
 
 The models are deliberately separate. They share playback, step identity, and snapshot ownership, not one universal database simulator.
 
@@ -18,6 +19,7 @@ The models are deliberately separate. They share playback, step identity, and sn
 | Copies and acknowledgements                   | `src/lessons/architecture/replication/`      |
 | An operation with a configurable read concern | `src/lessons/architecture/secondary-reads/`  |
 | Routing metadata and per-node annotations     | `src/lessons/architecture/config-servers/`   |
+| A capability with its own scene and options   | `src/lessons/features/change-streams/`       |
 
 Paths are relative to this app directory.
 
@@ -110,6 +112,18 @@ Import the lesson in `src/learning/lesson-registry.ts` and add it to `modelingLe
 For architecture lessons, register in `architectureLessons` instead. Each `ArchitectureDefinition` specifies `topologies`, so a sharding-only scenario does not appear under One server. `createArchitectureBuilder(topology)` provides the working state, step builder, entry node, and flow helper. Configure `readConcern: true` for the existing local/majority selector or `commandKind: 'notes'` for scenario notes.
 
 A genuinely new interactive option may require a new typed definition field and its control. Do not encode new options in UI checks against a lesson ID.
+
+## Add a feature lesson
+
+Feature lessons live under `src/lessons/features/<name>/` and register in `featureLessons`; the Features tab, sidebar, and mobile picker derive from that registry.
+
+- `types.ts` defines the model. It is intentionally specific to the first feature (oplog, stream, consumer). A second feature with a different shape should add its own model and scene rather than stretching this one.
+- `change-streams/operations.ts` holds the pure behavior (`applyWrite`, `openStream`, `processInbox`, `crashConsumer`). Test these directly; the lesson file only sequences them.
+- `builder.ts` mirrors the other builders: `add()` clears per-step transient state (`fresh`), captures `before`/`after` clones, and resolves `description` and `flows` from the `after` snapshot when they depend on the outcome (for example, whether a pipeline dropped an event).
+- Options such as `fullDocument` and the pipeline are build parameters (`build(options)`). Add a typed field and a control in `FeaturesView`; do not branch on a lesson ID.
+- The scene (`src/scenes/features/ChangeStreamScene.ts`) draws snapshots; it never mutates them. The Event panel and inspector are React, so event JSON stays selectable and readable.
+
+Tests should cover the MongoDB claim: which events a pipeline lets through, what an update event contains with and without `updateLookup`, and when a resume token stops being usable.
 
 ## Describe the scene
 

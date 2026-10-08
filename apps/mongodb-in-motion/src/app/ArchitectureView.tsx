@@ -70,7 +70,8 @@ export default function ArchitectureView({
   const { index, progress, playing, speed, setSpeed, complete, play, seek, reset } =
     playback;
   const [selected, setSelected] = useState<NodeId | null>(null),
-    [code, setCode] = useState(false),
+    // Open on desktop; on a phone the panel would cover the scene.
+    [code, setCode] = useState(() => window.innerWidth > 800),
     [copied, setCopied] = useState(false),
     [follow, setFollow] = useState(false);
   const {
@@ -96,7 +97,6 @@ export default function ArchitectureView({
   const visible = visibleNodes(topology);
   useEffect(() => {
     setSelected(null);
-    setCode(false);
     sceneRef.current?.home();
   }, [topology, lessonId, revision, active]);
   useEffect(() => {

@@ -56,7 +56,8 @@ export default function ModelingView({
   const [indexOpen, setIndexOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(null),
     [resultOpen, setResultOpen] = useState(false),
-    [code, setCode] = useState(false),
+    // Open on desktop; on a phone the panel would cover the scene.
+    [code, setCode] = useState(() => window.innerWidth > 800),
     [copied, setCopied] = useState(false);
   const playbackRef = useRef<HTMLElement>(null);
   const selectRef = useRef((value: string) => {});

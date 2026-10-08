@@ -14,6 +14,8 @@ import { lesson as indexes } from '../lessons/data-modeling/indexes/lesson.ts';
 import { lesson as polymorphism } from '../lessons/data-modeling/polymorphism/lesson.ts';
 import { lesson as references } from '../lessons/data-modeling/references/lesson.ts';
 import type { ModelingId, ReferenceMode } from '../lessons/data-modeling/types.ts';
+import { lesson as changeStreams } from '../lessons/features/change-streams/lesson.ts';
+import type { FeatureId, StreamOptions } from '../lessons/features/types.ts';
 /** Registration order is navigation order. Metadata belongs to each lesson. */
 export const architectureLessons = {
   write,
@@ -33,6 +35,9 @@ export const modelingLessons = {
   access,
   indexes,
 };
+export const featureLessons = {
+  changeStreams,
+};
 export const modelingIds = Object.keys(modelingLessons) as ModelingId[];
 export function lessonIds(topology: Topology): LessonId[] {
   return (Object.keys(architectureLessons) as LessonId[]).filter((id) =>
@@ -48,4 +53,8 @@ export function buildLesson(
 }
 export function buildModelingLesson(id: ModelingId, mode: ReferenceMode = 'application') {
   return modelingLessons[id].build(mode);
+}
+export const featureIds = Object.keys(featureLessons) as FeatureId[];
+export function buildFeatureLesson(id: FeatureId, options?: StreamOptions) {
+  return featureLessons[id].build(options);
 }

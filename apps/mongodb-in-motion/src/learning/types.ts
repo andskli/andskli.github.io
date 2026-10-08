@@ -24,4 +24,5 @@ export type LessonIcon =
   | 'embed'
   | 'reference'
   | 'pointer'
-  | 'index';
+  | 'index'
+  | 'stream';
