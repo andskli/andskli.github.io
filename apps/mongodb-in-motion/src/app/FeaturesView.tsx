@@ -152,7 +152,13 @@ export default function FeaturesView({ id, mobilePicker, eventsOpen, modalOpen }
     }
   }
   return (
-    <main className={'stage features-stage ' + (selected ? 'has-inspector' : '')}>
+    <main
+      className={
+        'stage features-stage ' +
+        (code ? 'has-code ' : '') +
+        (selected ? 'has-inspector' : '')
+      }
+    >
       {mobilePicker}
       <div ref={hostRef} className="scene-host" />
       {sceneError && (

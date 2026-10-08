@@ -168,6 +168,7 @@ export default function ModelingView({
         'stage modeling-stage ' +
         (practice ? 'practice-stage ' : '') +
         (definition.referenceResolution ? 'reference-stage ' : '') +
+        (code ? 'has-code ' : '') +
         (document || resultOpen || indexOpen ? 'has-inspector' : '')
       }
     >

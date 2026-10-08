@@ -147,7 +147,6 @@
   }
   .command-panel {
     left: 16px;
-    bottom: 233px;
   }
   .camera-hint {
     display: none;
@@ -346,11 +345,8 @@
     padding-right: 14px;
   }
   .command-panel {
-    bottom: 247px;
     left: 12px;
     width: calc(100% - 24px);
-    max-height: calc(100% - 410px);
-    overflow: auto;
   }
   .command-panel pre {
     font-size: 10px;

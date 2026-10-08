@@ -204,14 +204,8 @@
   color: #4a814a;
 }
 .modeling-code {
-  max-height: calc(100% - 275px);
-  overflow: auto;
-  bottom: 240px;
-}
-.modeling-code header {
-  position: sticky;
-  top: 0;
-  z-index: 1;
+  max-height: max(160px, calc(100% - var(--playback-reserved, 260px) - 72px));
+  bottom: var(--playback-reserved, 260px);
 }
 .modeling-code pre {
   font-size: 10px;
@@ -268,7 +262,7 @@
   bottom: 284px;
 }
 .reference-stage .modeling-code {
-  bottom: 270px;
+  bottom: calc(var(--playback-reserved, 260px) + 30px);
 }
 .reference-stage .modeling-inspector {
   max-height: calc(100% - 292px);
@@ -383,10 +377,6 @@
     width: calc(100% - 24px);
     max-height: calc(100% - 342px);
   }
-  .modeling-code {
-    bottom: 269px;
-    max-height: calc(100% - 331px);
-  }
   .modeling-stage .command-panel pre {
     font-size: 10px;
   }
@@ -401,7 +391,7 @@
     bottom: 298px;
   }
   .reference-stage .modeling-code {
-    bottom: 300px;
+    bottom: calc(var(--playback-reserved, 260px) + 30px);
   }
   .reference-stage .modeling-inspector {
     max-height: calc(100% - 369px);

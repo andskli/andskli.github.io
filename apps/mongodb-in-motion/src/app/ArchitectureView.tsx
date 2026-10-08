@@ -11,7 +11,7 @@ import {
   Server,
   X,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Timeline from '../components/playback/Timeline.tsx';
 import TransportControls from '../components/playback/TransportControls.tsx';
 import { buildLesson } from '../learning/lesson-registry.ts';
@@ -83,6 +83,7 @@ export default function ArchitectureView({
     [code, setCode] = useState(() => window.innerWidth > 800),
     [copied, setCopied] = useState(false),
     [follow, setFollow] = useState(false);
+  const playbackRef = useRef<HTMLElement>(null);
   const {
     hostRef: stageRef,
     sceneRef,
@@ -117,6 +118,22 @@ export default function ArchitectureView({
     reset();
     setConcern(routeConcern);
   }, [routeConcern]);
+  useEffect(() => {
+    // Feed the playback card's real footprint to CSS so overlays sit above it.
+    const panel = playbackRef.current,
+      stage = panel?.parentElement;
+    if (!panel || !stage) return;
+    const reserve = () =>
+      stage.style.setProperty(
+        '--playback-reserved',
+        `${stage.clientHeight - panel.offsetTop}px`,
+      );
+    const observer = new ResizeObserver(reserve);
+    observer.observe(panel);
+    observer.observe(stage);
+    reserve();
+    return () => observer.disconnect();
+  }, [active]);
 
   useEffect(() => {
     sceneRef.current?.update({
@@ -158,7 +175,9 @@ export default function ArchitectureView({
   // useSceneMount(active) separately releases the canvas while this section is hidden.
   if (!active) return null;
   return (
-    <main className={'stage ' + (selected ? 'has-inspector' : '')}>
+    <main
+      className={'stage ' + (code ? 'has-code ' : '') + (selected ? 'has-inspector' : '')}
+    >
       {mobilePicker}
       <div ref={stageRef} className="scene-host" />
       {error && (
@@ -306,7 +325,7 @@ export default function ArchitectureView({
           </pre>
         </section>
       )}
-      <section className="playback" aria-label="Lesson playback">
+      <section ref={playbackRef} className="playback" aria-label="Lesson playback">
         <div className="playback-content">
           <div className="playback-story" aria-live="polite">
             <div className="step-eyebrow">

@@ -183,13 +183,6 @@
     font-size: 8px;
   }
 }
-/* Sit above the playback card, whatever its height. */
-.features-stage .command-panel,
-.use-cases-stage .command-panel {
-  bottom: calc(var(--playback-reserved, 260px) + 12px);
-  max-height: calc(100% - var(--playback-reserved, 260px) - 72px);
-  overflow: auto;
-}
 /* Use cases: value panel sections and the ODL level note. */
 .value-panel {
   width: 340px;
@@ -276,10 +269,6 @@
   .use-cases-stage .scene-intro p {
     display: none;
   }
-}
-/* Use cases: keep the open code panel short so it stays clear of the source systems. */
-.use-cases-stage .command-panel {
-  max-height: min(140px, calc(100% - var(--playback-reserved, 260px) - 72px));
 }
 /* Value panel: headline numbers first, long JSON lines wrap instead of clipping. */
 .value-metrics.top {

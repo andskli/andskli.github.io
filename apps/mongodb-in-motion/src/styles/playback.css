@@ -227,10 +227,13 @@
 }
 .command-panel {
   position: absolute;
-  bottom: 224px;
+  bottom: var(--playback-reserved, 260px);
   left: 25px;
   z-index: 9;
   width: min(440px, calc(100% - 50px));
+  max-height: max(160px, calc(100% - var(--playback-reserved, 260px) - 72px));
+  display: flex;
+  flex-direction: column;
   background: #233e31;
   color: #d3e3c7;
   border: 1px solid #37543d;
@@ -239,6 +242,7 @@
   overflow: hidden;
 }
 .command-panel header {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -267,10 +271,26 @@
   color: #f1fae9;
 }
 .command-panel pre {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
   margin: 0;
   padding: 18px;
   font-size: 11px;
   line-height: 1.9;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+/* On wide screens, dock the code panel in the lower-left and move the player aside. */
+@media (min-width: 1440px) {
+  .stage.has-code .command-panel {
+    bottom: 20px;
+    max-height: calc(100% - 140px);
+  }
+  .stage.has-code .playback {
+    left: 490px;
+  }
+  .stage.has-code .modeling-proof {
+    left: 490px;
+  }
 }

@@ -52,7 +52,7 @@
   bottom: calc(var(--playback-reserved, 260px) + 48px);
 }
 .practice-stage .modeling-code {
-  bottom: calc(var(--playback-reserved, 260px) + 12px);
+  bottom: var(--playback-reserved, 260px);
   max-height: calc(100% - var(--playback-reserved, 260px) - 72px);
 }
 .practice-stage .modeling-inspector,

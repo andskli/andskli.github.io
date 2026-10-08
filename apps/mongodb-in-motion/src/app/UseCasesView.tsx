@@ -140,7 +140,9 @@ export default function UseCasesView({ id, mobilePicker, valueOpen, modalOpen }:
   return (
     <main
       className={
-        'stage features-stage use-cases-stage ' + (selected ? 'has-inspector' : '')
+        'stage features-stage use-cases-stage ' +
+        (code ? 'has-code ' : '') +
+        (selected ? 'has-inspector' : '')
       }
     >
       {mobilePicker}
