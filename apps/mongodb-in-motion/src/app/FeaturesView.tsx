@@ -30,6 +30,8 @@ import type {
 } from '../lessons/features/types.ts';
 import { ChangeStreamScene } from '../scenes/features/ChangeStreamScene.ts';
 import { useSceneMount } from '../scenes/shared/useSceneMount.ts';
+import { updateRoute, useRoute } from './routes.ts';
+import { useRouteStep } from './useRouteStep.ts';
 const createFeatureScene = (host: HTMLElement, select: (id: Part) => void) =>
   new ChangeStreamScene(host, select);
 
@@ -40,16 +42,27 @@ interface Props {
   modalOpen: boolean;
 }
 export default function FeaturesView({ id, mobilePicker, eventsOpen, modalOpen }: Props) {
-  const [options, setOptions] = useState<StreamOptions>(defaultOptions);
+  const route = useRoute();
+  const routeFullDocument = route.options.fullDocument ?? defaultOptions.fullDocument;
+  const routeFilter = route.options.filter ?? defaultOptions.filter;
+  const [options, setOptions] = useState<StreamOptions>({
+    fullDocument: routeFullDocument,
+    filter: routeFilter,
+  });
   const definition = featureLessons[id];
   const lesson = useMemo(() => buildFeatureLesson(id, options), [id, options]);
+  const [initialIndex] = useState(() =>
+    route.step ? lesson.steps.findIndex((step) => step.id === route.step) : -1,
+  );
   const playback = usePlayback({
     steps: lesson.steps,
     durationMs: 4600,
     suspended: modalOpen,
+    initialIndex,
   });
   const { index, progress, playing, speed, setSpeed, complete, play, seek, reset } =
     playback;
+  useRouteStep(lesson.steps, index, seek);
   const [selected, setSelected] = useState<Part | null>(null),
     // Open on desktop; on a phone the panel would cover the scene.
     [code, setCode] = useState(() => window.innerWidth > 800),
@@ -95,11 +108,26 @@ export default function FeaturesView({ id, mobilePicker, eventsOpen, modalOpen }
   useEffect(() => {
     sceneRef.current?.update({ state, step, progress, playing, selected, follow });
   }, [state, step, progress, playing, selected, follow]);
+  useEffect(() => {
+    // A pasted or history-navigated link can change the options without remounting.
+    if (options.fullDocument === routeFullDocument && options.filter === routeFilter)
+      return;
+    reset();
+    setOptions({ fullDocument: routeFullDocument, filter: routeFilter });
+  }, [routeFullDocument, routeFilter]);
 
   function restart(next: StreamOptions) {
     reset();
     setOptions(next);
     setSelected(null);
+    updateRoute({
+      options: {
+        ...route.options,
+        fullDocument: next.fullDocument,
+        filter: next.filter,
+      },
+      step: null,
+    });
   }
   useLessonKeyboard({
     disabled: modalOpen,
@@ -300,6 +328,7 @@ export default function FeaturesView({ id, mobilePicker, eventsOpen, modalOpen }
               reset();
               setSelected(null);
               sceneRef.current?.home();
+              updateRoute({ step: null });
             }}
           />
           <div className="transport-options">

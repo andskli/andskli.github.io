@@ -29,7 +29,29 @@ From the repository root, `make mongodb-in-motion` installs locked dependencies,
 
 ## Analytics
 
-`index.html` includes the same GoatCounter page-view snippet as the blog, pointing to `andskli.goatcounter.com`. Zola does not apply its shared head template to this standalone HTML. Visits appear under `/mongodb-in-motion/`; lesson changes are in-page interactions and do not send additional events.
+`index.html` includes the same GoatCounter page-view snippet as the blog, pointing to `andskli.goatcounter.com`. Zola does not apply its shared head template to this standalone HTML. Visits appear under `/mongodb-in-motion/`; section, lesson, step, and option changes are hash-based in-page interactions, so they do not send additional page views.
+
+## Deep links
+
+Every section, lesson, and step has a shareable URL. Navigation is hash-based (`#/...`), so links survive a refresh or a direct paste on GitHub Pages without any server rewrite. The address bar updates as you pick a lesson, change an option, or play a step, so copying it shares exactly what is on screen.
+
+```text
+#/<section>[/<lesson>[/<step-id>]][?<options>]
+```
+
+```text
+#/modeling/indexes/build-the-compound-index
+#/replica/write/the-majority-condition-is-met
+#/replica/secondary?concern=local
+#/sharded/migrate
+#/features/changeStreams/the-consumer-crashes?fullDocument=updateLookup&filter=inserts
+#/use-cases/odl/one-customer-document?level=enriched
+```
+
+- `section` is one of `modeling`, `standalone`, `replica`, `sharded`, `features`, or `use-cases`.
+- `lesson` is the lesson's registry ID (`documents`, `indexes`, `write`, `migrate`, `changeStreams`, `odl`, …). A lesson that does not belong to the selected topology falls back to that topology's first lesson.
+- `step-id` is the stable step ID (for example `the-majority-condition-is-met`), not a position, so reordering steps never breaks a link.
+- `options` pins the lesson's selectors: `level` (ODL), `fullDocument` and `filter` (change streams), `concern` (secondary reads), and `mode` (references). Defaults are omitted, and unknown sections, lessons, steps, or values fall back safely.
 
 ## Explore
 

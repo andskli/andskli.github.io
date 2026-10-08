@@ -103,7 +103,7 @@ export const lesson: ModelingDefinition = {
 };
 ```
 
-Keep step IDs stable when editing titles or inserting steps. Optional comparison buttons use `shortcuts: [{ label: 'Update price', stepId: 'update-price' }]` and `layout: 'practice'`; they never depend on a step's array position. The registry test rejects a shortcut pointing to a missing step.
+Keep step IDs stable when editing titles or inserting steps. Optional comparison buttons use `shortcuts: [{ label: 'Update price', stepId: 'update-price' }]` and `layout: 'practice'`; they never depend on a step's array position. The registry test rejects a shortcut pointing to a missing step. Step IDs are also the step segment of shareable deep links (`#/modeling/product-price/update-price`), so treat them as public API: rename only when you accept breaking existing links.
 
 `add()` captures independent before/after snapshots. Its update callback can mutate the builder's working state; never mutate returned snapshots, shared fixtures, or state inside the renderer. Keep sample query results separate from stored documents.
 

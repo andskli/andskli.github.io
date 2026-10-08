@@ -25,6 +25,8 @@ import { defaultLevel } from '../lessons/use-cases/odl/operations.ts';
 import type { OdlLevel, Part, UseCaseId } from '../lessons/use-cases/types.ts';
 import { OdlScene } from '../scenes/use-cases/OdlScene.ts';
 import { useSceneMount } from '../scenes/shared/useSceneMount.ts';
+import { updateRoute, useRoute } from './routes.ts';
+import { useRouteStep } from './useRouteStep.ts';
 const createUseCaseScene = (host: HTMLElement, select: (id: Part) => void) =>
   new OdlScene(host, select);
 
@@ -35,16 +37,23 @@ interface Props {
   modalOpen: boolean;
 }
 export default function UseCasesView({ id, mobilePicker, valueOpen, modalOpen }: Props) {
-  const [level, setLevel] = useState<OdlLevel>(defaultLevel);
+  const route = useRoute();
+  const routeLevel = route.options.level ?? defaultLevel;
+  const [level, setLevel] = useState<OdlLevel>(routeLevel);
   const definition = useCaseLessons[id];
   const lesson = useMemo(() => buildUseCaseLesson(id, level), [id, level]);
+  const [initialIndex] = useState(() =>
+    route.step ? lesson.steps.findIndex((step) => step.id === route.step) : -1,
+  );
   const playback = usePlayback({
     steps: lesson.steps,
     durationMs: 4600,
     suspended: modalOpen,
+    initialIndex,
   });
   const { index, progress, playing, speed, setSpeed, complete, play, seek, reset } =
     playback;
+  useRouteStep(lesson.steps, index, seek);
   const [selected, setSelected] = useState<Part | null>(null),
     // Open when there is room. This scene is wide and tall, so a short window or a phone
     // keeps the panel closed rather than covering the source systems.
@@ -93,11 +102,18 @@ export default function UseCasesView({ id, mobilePicker, valueOpen, modalOpen }:
   useEffect(() => {
     sceneRef.current?.update({ state, step, progress, playing, selected, follow });
   }, [state, step, progress, playing, selected, follow]);
+  useEffect(() => {
+    // A pasted or history-navigated link can change the level without remounting.
+    if (level === routeLevel) return;
+    reset();
+    setLevel(routeLevel);
+  }, [routeLevel]);
 
   function restart(next: OdlLevel) {
     reset();
     setLevel(next);
     setSelected(null);
+    updateRoute({ options: { ...route.options, level: next }, step: null });
   }
   useLessonKeyboard({
     disabled: modalOpen,
@@ -297,6 +313,7 @@ export default function UseCasesView({ id, mobilePicker, valueOpen, modalOpen }:
               reset();
               setSelected(null);
               sceneRef.current?.home();
+              updateRoute({ step: null });
             }}
           />
           <div className="transport-options">

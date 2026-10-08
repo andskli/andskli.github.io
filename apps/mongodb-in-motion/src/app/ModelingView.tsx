@@ -26,6 +26,8 @@ import { usePlayback } from '../learning/usePlayback.ts';
 import type { ModelingId, ReferenceMode } from '../lessons/data-modeling/types.ts';
 import { ModelingScene } from '../scenes/documents/ModelingScene.ts';
 import { useSceneMount } from '../scenes/shared/useSceneMount.ts';
+import { updateRoute, useRoute } from './routes.ts';
+import { useRouteStep } from './useRouteStep.ts';
 const createModelingScene = (host: HTMLElement, select: (id: string) => void) =>
   new ModelingScene(host, select);
 
@@ -43,16 +45,23 @@ export default function ModelingView({
   onCloseDocuments,
   modalOpen,
 }: Props) {
-  const [mode, setMode] = useState<ReferenceMode>('application');
+  const route = useRoute();
+  const routeMode = route.options.mode ?? 'application';
+  const [mode, setMode] = useState<ReferenceMode>(routeMode);
   const lesson = useMemo(() => buildModelingLesson(id, mode), [id, mode]);
   const definition = modelingLessons[id];
+  const [initialIndex] = useState(() =>
+    route.step ? lesson.steps.findIndex((step) => step.id === route.step) : -1,
+  );
   const playback = usePlayback({
     steps: lesson.steps,
     durationMs: 5400,
     suspended: modalOpen,
+    initialIndex,
   });
   const { index, progress, playing, speed, setSpeed, complete, play, seek, seekStep } =
     playback;
+  useRouteStep(lesson.steps, index, seek);
   const [indexOpen, setIndexOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(null),
     [resultOpen, setResultOpen] = useState(false),
@@ -109,6 +118,12 @@ export default function ModelingView({
   useEffect(() => {
     sceneRef.current?.update({ lesson, step, state, progress, selected });
   }, [lesson, step, state, progress, selected]);
+  useEffect(() => {
+    // A pasted or history-navigated link can change the reference mode without remounting.
+    if (mode === routeMode) return;
+    playback.reset();
+    setMode(routeMode);
+  }, [routeMode]);
   useEffect(() => {
     // A card can disappear as it is embedded into another document; close its inspector too.
     if (!document) setSelected(null);
@@ -321,8 +336,10 @@ export default function ModelingView({
                 aria-label="Reference resolution"
                 value={mode}
                 onChange={(e) => {
+                  const next = e.target.value as ReferenceMode;
                   reset();
-                  setMode(e.target.value as ReferenceMode);
+                  setMode(next);
+                  updateRoute({ options: { ...route.options, mode: next }, step: null });
                 }}
               >
                 <option value="application">Application reads</option>
@@ -350,7 +367,10 @@ export default function ModelingView({
           <TransportControls
             playback={playback}
             stepCount={lesson.steps.length}
-            onReset={reset}
+            onReset={() => {
+              reset();
+              updateRoute({ step: null });
+            }}
           />
           <div className="transport-options">
             <a

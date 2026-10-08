@@ -34,7 +34,9 @@ import { Inspector } from '../components/inspectors/ComponentInspector.tsx';
 import { architectureLessons } from '../learning/lesson-registry.ts';
 import { useLessonKeyboard } from '../learning/useLessonKeyboard.ts';
 import { usePlayback } from '../learning/usePlayback.ts';
+import { updateRoute, useRoute } from './routes.ts';
 import { titles, topologyNames } from './sections.ts';
+import { useRouteStep } from './useRouteStep.ts';
 interface Props {
   active: boolean;
   topology: Topology;
@@ -56,19 +58,26 @@ export default function ArchitectureView({
   mobilePicker,
 }: Props) {
   const isModeling = !active;
-  const [concern, setConcern] = useState<Concern>('majority');
+  const route = useRoute();
+  const routeConcern = route.options.concern ?? 'majority';
+  const [concern, setConcern] = useState<Concern>(routeConcern);
   const definition = architectureLessons[lessonId];
   const lesson = useMemo(
     () => buildLesson(lessonId, topology, concern),
     [lessonId, topology, concern],
   );
+  const [initialIndex] = useState(() =>
+    route.step ? lesson.steps.findIndex((step) => step.id === route.step) : -1,
+  );
   const playback = usePlayback({
     steps: lesson.steps,
     durationMs: 3400,
     lessonKey: topology + '/' + lessonId + '/' + revision + '/' + active,
+    initialIndex,
   });
   const { index, progress, playing, speed, setSpeed, complete, play, seek, reset } =
     playback;
+  useRouteStep(lesson.steps, index, seek);
   const [selected, setSelected] = useState<NodeId | null>(null),
     // Open on desktop; on a phone the panel would cover the scene.
     [code, setCode] = useState(() => window.innerWidth > 800),
@@ -102,6 +111,12 @@ export default function ArchitectureView({
   useEffect(() => {
     if (components) setSelected(null);
   }, [components]);
+  useEffect(() => {
+    // A pasted or history-navigated link can change read concern without remounting.
+    if (concern === routeConcern) return;
+    reset();
+    setConcern(routeConcern);
+  }, [routeConcern]);
 
   useEffect(() => {
     sceneRef.current?.update({
@@ -334,8 +349,13 @@ export default function ArchitectureView({
                 aria-label="Read concern"
                 value={concern}
                 onChange={(e) => {
+                  const next = e.target.value as Concern;
                   reset();
-                  setConcern(e.target.value as Concern);
+                  setConcern(next);
+                  updateRoute({
+                    options: { ...route.options, concern: next },
+                    step: null,
+                  });
                 }}
               >
                 <option value="local">local</option>
@@ -357,7 +377,10 @@ export default function ArchitectureView({
           <TransportControls
             playback={playback}
             stepCount={lesson.steps.length}
-            onReset={reset}
+            onReset={() => {
+              reset();
+              updateRoute({ step: null });
+            }}
           />
           <div className="transport-options">
             <label className="follow-toggle">

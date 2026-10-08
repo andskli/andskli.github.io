@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import AboutDialog from '../components/AboutDialog.tsx';
 import AppHeader from '../components/navigation/AppHeader.tsx';
 import {
@@ -20,14 +20,14 @@ import ArchitectureView from './ArchitectureView.tsx';
 import FeaturesView from './FeaturesView.tsx';
 import ModelingView from './ModelingView.tsx';
 import UseCasesView from './UseCasesView.tsx';
+import { defaultLessonFor, setRoute, useRoute } from './routes.ts';
 import type { MainSection } from './sections.ts';
 import { isTopology, topologyNames } from './sections.ts';
 export default function App() {
-  const [section, setSection] = useState<MainSection>('modeling');
-  // Each section remembers its own selection, so returning to a tab restores the lesson.
-  const [modeling, setModeling] = useState<ModelingId>('documents');
-  const [feature, setFeature] = useState<FeatureId>('changeStreams');
-  const [useCase, setUseCase] = useState<UseCaseId>('odl');
+  const route = useRoute();
+  const section = route.section;
+  // Remember the last lesson per section so a tab returns to where it was left.
+  const remembered = useRef<Record<string, string>>({});
   const [topology, setTopology] = useState<Topology>('sharded');
   const [lessonId, setLessonId] = useState<LessonId>('write');
   // A repeat click on the current lesson still restarts it, even though its ID is unchanged.
@@ -41,24 +41,31 @@ export default function App() {
   const isModeling = section === 'modeling';
   const isFeatures = section === 'features';
   const isUseCases = section === 'use-cases';
+  const activeTopology: Topology = isTopology(section) ? section : topology;
+  const activeLessonId: LessonId = isTopology(section)
+    ? (route.lesson as LessonId)
+    : lessonId;
+  useEffect(() => {
+    remembered.current[route.section] = route.lesson;
+    if (isTopology(route.section)) {
+      setTopology(route.section);
+      setLessonId(route.lesson as LessonId);
+    }
+  }, [route.section, route.lesson]);
   function resetPanels() {
     setDocumentsOpen(false);
     setComponents(false);
     setRevision((value) => value + 1);
   }
+  function lessonFor(section: MainSection) {
+    return remembered.current[section] ?? defaultLessonFor(section);
+  }
   function chooseSection(value: MainSection) {
-    if (isTopology(value)) {
-      setTopology(value);
-      setLessonId('write');
-    }
-    setSection(value);
+    setRoute({ section: value, lesson: lessonFor(value), step: null, options: {} });
     resetPanels();
   }
   function chooseLesson(id: string) {
-    if (isModeling) setModeling(id as ModelingId);
-    else if (isFeatures) setFeature(id as FeatureId);
-    else if (isUseCases) setUseCase(id as UseCaseId);
-    else setLessonId(id as LessonId);
+    setRoute({ section, lesson: id, step: null, options: {} });
     resetPanels();
   }
   function toggleInspector() {
@@ -80,14 +87,8 @@ export default function App() {
       ? Object.values(featureLessons)
       : isUseCases
         ? Object.values(useCaseLessons)
-        : lessonIds(topology).map((id) => architectureLessons[id]);
-  const activeLesson = isModeling
-    ? modeling
-    : isFeatures
-      ? feature
-      : isUseCases
-        ? useCase
-        : lessonId;
+        : lessonIds(activeTopology).map((id) => architectureLessons[id]);
+  const activeLesson = route.lesson;
   const mobilePicker = (
     <MobileLessonPicker lessons={lessons} active={activeLesson} onSelect={chooseLesson} />
   );
@@ -105,8 +106,8 @@ export default function App() {
                 : components
         }
         onHome={() => {
-          setModeling('documents');
-          chooseSection('modeling');
+          setRoute({ section: 'modeling', lesson: 'documents', step: null, options: {} });
+          resetPanels();
         }}
         onSection={chooseSection}
         onInspect={toggleInspector}
@@ -123,7 +124,7 @@ export default function App() {
                 ? 'Features'
                 : isUseCases
                   ? 'Use cases'
-                  : topologyNames[topology]
+                  : topologyNames[activeTopology]
           }
           modeling={isModeling}
           onSelect={chooseLesson}
@@ -132,8 +133,8 @@ export default function App() {
         {/* Modeling and features start fresh per lesson/revision, including local options. */}
         {isModeling && (
           <ModelingView
-            key={modeling + '-' + revision}
-            id={modeling}
+            key={route.lesson + '-' + revision}
+            id={route.lesson as ModelingId}
             mobilePicker={mobilePicker}
             documentsOpen={documentsOpen}
             onCloseDocuments={() => setDocumentsOpen(false)}
@@ -142,8 +143,8 @@ export default function App() {
         )}
         {isFeatures && (
           <FeaturesView
-            key={feature + '-' + revision}
-            id={feature}
+            key={route.lesson + '-' + revision}
+            id={route.lesson as FeatureId}
             mobilePicker={mobilePicker}
             eventsOpen={events}
             modalOpen={about}
@@ -151,8 +152,8 @@ export default function App() {
         )}
         {isUseCases && (
           <UseCasesView
-            key={useCase + '-' + revision}
-            id={useCase}
+            key={route.lesson + '-' + revision}
+            id={route.lesson as UseCaseId}
             mobilePicker={mobilePicker}
             valueOpen={valueOpen}
             modalOpen={about}
@@ -161,8 +162,8 @@ export default function App() {
         {/* Keep architecture preferences mounted; the inactive view releases its 3D scene. */}
         <ArchitectureView
           active={isTopology(section)}
-          topology={topology}
-          lessonId={lessonId}
+          topology={activeTopology}
+          lessonId={activeLessonId}
           revision={revision}
           components={components}
           setComponents={setComponents}
