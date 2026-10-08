@@ -1,0 +1,49 @@
+direction: right
+
+before: "Inside a single cluster" {
+  style.fill: "#fef3c7"
+  style.font-color: "#0A0F25"
+
+  users: "Users" {shape: person}
+  ingress: "Ingress / LB" {shape: cloud}
+  svc_a: "service-a" {shape: hexagon}
+  svc_b: "service-b" {shape: hexagon}
+
+  users -> ingress: "north–south"
+  ingress -> svc_a
+  svc_a -> svc_b: "east–west\n(cluster-local DNS)" {
+    style.stroke-dash: 3
+  }
+
+  note: |md
+    North–south and east–west
+    use different mechanisms.
+  | {
+    style.font-size: 14
+    style.font-color: "#0A0F25"
+  }
+}
+
+after: "With external discovery" {
+  style.fill: "#dbeafe"
+  style.font-color: "#0A0F25"
+
+  users: "Users" {shape: person}
+  dns: "Route 53  ·  ALB / NLB" {shape: cloud}
+
+  svc_a: "service-a" {shape: hexagon}
+  svc_b: "service-b" {shape: hexagon}
+
+  users -> dns: "north–south"
+  svc_a -> dns: "east–west"
+  dns -> svc_a
+  dns -> svc_b
+
+  note: |md
+    Both paths resolve stable
+    external names.
+  | {
+    style.font-size: 14
+    style.font-color: "#0A0F25"
+  }
+}

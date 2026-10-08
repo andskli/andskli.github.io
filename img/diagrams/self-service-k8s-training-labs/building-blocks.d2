@@ -1,0 +1,23 @@
+# Building blocks — left to right, compact
+direction: right
+
+isb: "Innovation Sandbox on AWS\naccount vending + recycle" {
+  style.fill: "#fef3c7"
+  style.font-color: "#0A0F25"
+}
+blueprint: "Blueprint\nCloudFormation StackSet" {
+  style.fill: "#ede9fe"
+  style.font-color: "#0A0F25"
+}
+shim: "CodeBuild + Step Functions\nprovisioning shim" {
+  style.fill: "#e0e7ff"
+  style.font-color: "#0A0F25"
+}
+platform: "Your Terraform → EKS" {
+  style.fill: "#dbeafe"
+  style.font-color: "#0A0F25"
+}
+
+isb -> blueprint: "deploys per lease"
+blueprint -> shim: "bootstraps"
+shim -> platform: "applies"
