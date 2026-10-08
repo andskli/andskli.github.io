@@ -44,9 +44,6 @@
 .sidebar-top {
   flex-shrink: 0;
 }
-.sidebar-footer {
-  flex-shrink: 0;
-}
 .sidebar-note {
   display: none;
 }

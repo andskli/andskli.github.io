@@ -80,9 +80,6 @@ export function LessonSidebar({
           Model boundaries <ArrowRight size={13} />
         </button>
       </div>
-      <div className="sidebar-footer">
-        <span className="live-dot" /> Runs entirely in your browser
-      </div>
     </aside>
   );
 }

@@ -264,15 +264,6 @@
   padding: 0;
   color: #6f8c72;
 }
-.sidebar-footer {
-  border-top: 1px solid #e8eee2;
-  padding: 18px 24px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: #95a18e;
-  font-size: 9px;
-}
 .live-dot {
   display: inline-block;
   width: 5px;
