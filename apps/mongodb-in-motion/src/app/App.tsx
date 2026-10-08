@@ -10,13 +10,16 @@ import {
   featureLessons,
   lessonIds,
   modelingLessons,
+  useCaseLessons,
 } from '../learning/lesson-registry.ts';
 import type { LessonId, Topology } from '../lessons/architecture/types.ts';
 import type { ModelingId } from '../lessons/data-modeling/types.ts';
 import type { FeatureId } from '../lessons/features/types.ts';
+import type { UseCaseId } from '../lessons/use-cases/types.ts';
 import ArchitectureView from './ArchitectureView.tsx';
 import FeaturesView from './FeaturesView.tsx';
 import ModelingView from './ModelingView.tsx';
+import UseCasesView from './UseCasesView.tsx';
 import type { MainSection } from './sections.ts';
 import { isTopology, topologyNames } from './sections.ts';
 export default function App() {
@@ -24,6 +27,7 @@ export default function App() {
   // Each section remembers its own selection, so returning to a tab restores the lesson.
   const [modeling, setModeling] = useState<ModelingId>('documents');
   const [feature, setFeature] = useState<FeatureId>('changeStreams');
+  const [useCase, setUseCase] = useState<UseCaseId>('odl');
   const [topology, setTopology] = useState<Topology>('sharded');
   const [lessonId, setLessonId] = useState<LessonId>('write');
   // A repeat click on the current lesson still restarts it, even though its ID is unchanged.
@@ -32,9 +36,11 @@ export default function App() {
     [components, setComponents] = useState(false),
     // The event panel is a side panel; start it closed where it would cover the scene.
     [events, setEvents] = useState(() => window.innerWidth >= 1280),
+    [valueOpen, setValueOpen] = useState(() => window.innerWidth >= 1280),
     [about, setAbout] = useState(false);
   const isModeling = section === 'modeling';
   const isFeatures = section === 'features';
+  const isUseCases = section === 'use-cases';
   function resetPanels() {
     setDocumentsOpen(false);
     setComponents(false);
@@ -51,12 +57,14 @@ export default function App() {
   function chooseLesson(id: string) {
     if (isModeling) setModeling(id as ModelingId);
     else if (isFeatures) setFeature(id as FeatureId);
+    else if (isUseCases) setUseCase(id as UseCaseId);
     else setLessonId(id as LessonId);
     resetPanels();
   }
   function toggleInspector() {
     if (isModeling) setDocumentsOpen((value) => !value);
     else if (isFeatures) setEvents((value) => !value);
+    else if (isUseCases) setValueOpen((value) => !value);
     else setComponents((value) => !value);
   }
   useEffect(() => {
@@ -70,8 +78,16 @@ export default function App() {
     ? Object.values(modelingLessons)
     : isFeatures
       ? Object.values(featureLessons)
-      : lessonIds(topology).map((id) => architectureLessons[id]);
-  const activeLesson = isModeling ? modeling : isFeatures ? feature : lessonId;
+      : isUseCases
+        ? Object.values(useCaseLessons)
+        : lessonIds(topology).map((id) => architectureLessons[id]);
+  const activeLesson = isModeling
+    ? modeling
+    : isFeatures
+      ? feature
+      : isUseCases
+        ? useCase
+        : lessonId;
   const mobilePicker = (
     <MobileLessonPicker lessons={lessons} active={activeLesson} onSelect={chooseLesson} />
   );
@@ -79,7 +95,15 @@ export default function App() {
     <div className="app-shell">
       <AppHeader
         section={section}
-        panelOpen={isModeling ? documentsOpen : isFeatures ? events : components}
+        panelOpen={
+          isModeling
+            ? documentsOpen
+            : isFeatures
+              ? events
+              : isUseCases
+                ? valueOpen
+                : components
+        }
         onHome={() => {
           setModeling('documents');
           chooseSection('modeling');
@@ -97,7 +121,9 @@ export default function App() {
               ? 'Data modeling'
               : isFeatures
                 ? 'Features'
-                : topologyNames[topology]
+                : isUseCases
+                  ? 'Use cases'
+                  : topologyNames[topology]
           }
           modeling={isModeling}
           onSelect={chooseLesson}
@@ -120,6 +146,15 @@ export default function App() {
             id={feature}
             mobilePicker={mobilePicker}
             eventsOpen={events}
+            modalOpen={about}
+          />
+        )}
+        {isUseCases && (
+          <UseCasesView
+            key={useCase + '-' + revision}
+            id={useCase}
+            mobilePicker={mobilePicker}
+            valueOpen={valueOpen}
             modalOpen={about}
           />
         )}

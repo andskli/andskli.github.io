@@ -1,6 +1,6 @@
 # MongoDB in Motion
 
-A standalone 3D educational app explaining MongoDB from document design to distributed architecture. Six data-modeling lessons introduce BSON documents, polymorphism, embedding, references, access patterns, and indexes; eight architecture lessons explore processes, replica sets, routers, and shards; a Features section follows individual MongoDB capabilities, starting with change streams.
+A standalone 3D educational app explaining MongoDB from document design to distributed architecture. Six data-modeling lessons introduce BSON documents, polymorphism, embedding, references, access patterns, and indexes; eight architecture lessons explore processes, replica sets, routers, and shards; a Features section follows individual MongoDB capabilities, starting with change streams; a Use cases section shows how they combine, starting with an operational data layer.
 
 ## Run
 
@@ -33,7 +33,7 @@ From the repository root, `make mongodb-in-motion` installs locked dependencies,
 
 ## Explore
 
-- Use the permanent main navigation: **Data modeling**, **One server**, **Replica set**, **Sharded cluster**, and **Features**. The sidebar and mobile lesson picker show lessons for the selected section. Returning to Data modeling remembers the last selected modeling lesson.
+- Use the permanent main navigation: **Data modeling**, **One server**, **Replica set**, **Sharded cluster**, **Features**, and **Use cases**. The sidebar and mobile lesson picker show lessons for the selected section. Returning to Data modeling remembers the last selected modeling lesson.
 - Play, pause, rewind, step forward, change playback speed, or replay any lesson.
 - Drag the scene to orbit; scroll to zoom. Use the fit-view button to return home.
 - Select a process or use **Components** to inspect its role, locally applied documents, or routing metadata.
@@ -72,13 +72,19 @@ Features are capability-focused lessons with their own model and scene, separate
 
 1. **Change streams:** a producer writes to a primary, each write becomes an oplog entry, and a stream cursor turns matching entries into change events for a consumer. The **Event** panel shows each event exactly as the server would send it (`_id` resume token, `operationType`, `fullDocument`, `updateDescription`). Two selectors change the lesson: `fullDocument` (`default` reports only the update delta; `updateLookup` adds the current document) and the stream pipeline (none, `$match` inserts, or `$match` on `fullDocument.status`). The steps cover inserts, update deltas, deletes, server-side filtering, processing then saving the resume token, a consumer that falls behind, a crash and `resumeAfter` replay, an outage that outlasts the capped oplog (`ChangeStreamHistoryLost`, code 286), and restarting with a resync.
 
+## Use case lessons
+
+Use cases combine features into an outcome, with their own model and scene.
+
+1. **Operational data layer:** one customer is split across a CRM (JSON change feed), a legacy relational database (log-based CDC) and a partner REST/XML API (no change feed, so a micro-batch poll every few minutes). The lesson shows the point-to-point mesh first, then captures each source the way it allows, lands the changes in per-source collections, merges them into one customer document, and unlocks three downstream consumers one at a time: a Customer 360 operational app, real-time analytics, and an AI agent using vector search. The **Value** panel shows the latest change in its native format (relational change record, JSON, or XML), the resulting ODL document, the capabilities unlocked so far, the integration count (3 × 3 = 9 point-to-point, 3 + 3 = 6 through the hub), and the legacy RDBMS load as consumers move off it. Load is also shown as colour: each source system's base pad, label and direct-query lines go green (protected, up to 20%), amber (busy, up to 50%) or red (overloaded), and the pad pulses while it is red, so the lesson shows the ODL shielding the systems of record. The **ODL level** selector follows the Atlas Architecture Center levels: _read-only_ (a read replica), _enriched_ (adds reference data, a derived indicator and provenance), and _read-write_ (accepts writes, with the outbox/saga caveat).
+
 ## Source structure
 
 The app separates lesson content, deterministic model operations, playback, React UI, and Three.js rendering. Start with [Adding a lesson](docs/adding-a-lesson.md) for a complete example and the extension workflow.
 
 ```text
 src/
-  app/                  Application shell and the three domain players
+  app/                  Application shell and the four domain players
   learning/             Lesson registry, step contracts, playback, keyboard controls
   lessons/
     architecture/       Eight scenarios, topology helpers, model types and fixtures
@@ -86,14 +92,17 @@ src/
       indexes/          lesson.ts, fixtures.ts, operations.ts, lesson.test.ts
     features/           Capability lessons, model types, step builder and sources
       change-streams/   lesson.ts, operations.ts (oplog, stream, resume), lesson.test.ts
+    use-cases/          Use-case lessons, model types, step builder and sources
+      odl/              lesson.ts, operations.ts (CDC, micro-batch, merge, unlock), lesson.test.ts
   components/
     navigation/         Main sections, sidebar, mobile picker
     playback/           Timeline, transport and scenario comparison controls
-    inspectors/         Components, documents, query results, indexes and change events
+    inspectors/         Components, documents, query results, indexes, change events and ODL value
   scenes/
     cluster/            Cluster renderer, procedural objects, layout and palette
     documents/          Document renderer, glyph catalog and canvas textures
     features/           Change-stream renderer: oplog rail, cursor and token markers
+    use-cases/          ODL renderer: sources, ingestion lanes, the layer and consumers
     shared/             Canvas lifecycle and resource disposal
   styles/               Formatted styles grouped by responsibility
 ```
@@ -123,6 +132,8 @@ Data-modeling lessons use fixed illustrative operations, not a query engine or l
 
 The change-stream lesson uses a deterministic model of a single replica-set primary and one consumer; it does not run a real change stream. Oplog positions (`#101`) are teaching counters, not real cluster timestamps, and resume tokens are fixed-width stand-ins rather than the server's encoded keys. Events omit fields such as `wallTime`. The oplog is capped at seven entries so that rollover is visible; real oplogs are sized in gigabytes and retention depends on write volume. A resume succeeds in the model when the token's position is still retained. After a drained batch the consumer saves the stream's position, as drivers do with `postBatchResumeToken`. Majority-commit visibility, failover, sharded `mongos` merging, invalidate events, and pre/post-images are described but not animated.
 
+The operational-data-layer lesson is a deterministic model, not a running pipeline. It does not execute connectors, Kafka, or SQL; the source change records, XML and code snippets are illustrative, and the Debezium and MongoDB Kafka sink settings are examples rather than a tested configuration. The sources are generic stand-ins (a SaaS CRM, a relational database, a partner API), not specific products. Latency labels ("seconds", "up to 5 min") and the load percentages are illustrative: real load depends on the workload, and each consumer's share of a source's load is a fixed teaching number, and the colour thresholds (20% and 50%) are teaching values, not operational guidance. The integration count assumes every consumer needs every source, which is the worst case for a point-to-point design. One customer is used throughout, so the lesson does not show conflict resolution between sources, schema drift, deletes, or backfill of history. The read-write level mentions the transactional outbox but does not animate the write-back to legacy systems.
+
 Each depicted replica set has three voting, data-bearing members. Config servers use the dedicated-config-server topology. Reads use primary preference unless the secondary-read lesson is selected. The secondary-read example freezes a transient state: a member has locally applied v2 while its majority-committed view remains at v1. Majority read concern does not imply the latest value or a vote on each query.
 
 The aggregation example uses a small `$match`/`$group` pipeline with `allowDiskUse: false`; it merges on mongos. Other pipelines, options, and execution plans can put the merger on a shard. Migration omits concurrent writes, detailed critical-section mechanics, and cleanup scheduling. It distinguishes copied data from committed ownership and final cleanup.
@@ -143,6 +154,13 @@ The aggregation example uses a small `$match`/`$group` pipeline with `allowDiskU
 - [Change streams](https://www.mongodb.com/docs/manual/changeStreams/)
 - [Change events](https://www.mongodb.com/docs/manual/reference/change-events/)
 - [The oplog](https://www.mongodb.com/docs/manual/core/replica-set-oplog/)
+
+- [Operational data layer reference architecture](https://www.mongodb.com/docs/atlas/architecture/current/deployment-paradigms/reference-architectures/data-layer/)
+- [Implementing an operational data layer](https://www.mongodb.com/resources/solutions/use-cases/implementing-an-operational-data-layer)
+- [MongoDB Kafka Connector](https://www.mongodb.com/docs/kafka-connector/current/)
+- [Atlas Stream Processing](https://www.mongodb.com/docs/atlas/atlas-stream-processing/)
+- [Atlas Vector Search](https://www.mongodb.com/docs/atlas/atlas-vector-search/vector-search-overview/)
+- [Read preference](https://www.mongodb.com/docs/manual/core/read-preference/)
 
 - [MongoDB replication](https://www.mongodb.com/docs/manual/replication/)
 - [MongoDB sharding](https://www.mongodb.com/docs/manual/sharding/)

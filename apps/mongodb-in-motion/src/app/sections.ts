@@ -1,6 +1,6 @@
 import type { Topology } from '../lessons/architecture/types.ts';
 /** The permanent main navigation: one lesson domain, or one cluster topology. */
-export type MainSection = 'modeling' | Topology | 'features';
+export type MainSection = 'modeling' | Topology | 'features' | 'use-cases';
 export const titles: Record<Topology, string> = {
   standalone: 'One server. One document.',
   replica: 'Three members. One dataset.',
@@ -12,4 +12,4 @@ export const topologyNames: Record<Topology, string> = {
   sharded: 'Sharded cluster',
 };
 export const isTopology = (section: MainSection): section is Topology =>
-  section !== 'modeling' && section !== 'features';
+  section !== 'modeling' && section !== 'features' && section !== 'use-cases';

@@ -2,6 +2,7 @@ import { ExternalLink, X } from 'lucide-react';
 import { sourceLinks } from '../lessons/architecture/sources.ts';
 import { modelingSources } from '../lessons/data-modeling/sources.ts';
 import { featureSources } from '../lessons/features/sources.ts';
+import { useCaseSources } from '../lessons/use-cases/sources.ts';
 const sourceLabels: Record<string, string> = {
   concern: 'Read concern',
   config: 'Config servers',
@@ -9,6 +10,12 @@ const sourceLabels: Record<string, string> = {
   changeStreams: 'Change streams',
   changeEvents: 'Change events',
   oplog: 'Oplog',
+  odl: 'Operational data layer',
+  odlPattern: 'ODL pattern',
+  kafka: 'Kafka connector',
+  streamProcessing: 'Stream processing',
+  vectorSearch: 'Vector search',
+  readPreference: 'Read preference',
 };
 export default function AboutDialog({ onClose }: { onClose: () => void }) {
   return (
@@ -70,6 +77,7 @@ export default function AboutDialog({ onClose }: { onClose: () => void }) {
             ...Object.entries(sourceLinks),
             ...Object.entries(modelingSources),
             ...Object.entries(featureSources),
+            ...Object.entries(useCaseSources),
           ].map(([name, url]) => (
             <a href={url} key={name} target="_blank" rel="noreferrer">
               {sourceLabels[name] ?? name[0].toUpperCase() + name.slice(1)}

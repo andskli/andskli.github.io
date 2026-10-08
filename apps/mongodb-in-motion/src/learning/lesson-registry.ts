@@ -14,6 +14,8 @@ import { lesson as indexes } from '../lessons/data-modeling/indexes/lesson.ts';
 import { lesson as polymorphism } from '../lessons/data-modeling/polymorphism/lesson.ts';
 import { lesson as references } from '../lessons/data-modeling/references/lesson.ts';
 import type { ModelingId, ReferenceMode } from '../lessons/data-modeling/types.ts';
+import { lesson as odl } from '../lessons/use-cases/odl/lesson.ts';
+import type { OdlLevel, UseCaseId } from '../lessons/use-cases/types.ts';
 import { lesson as changeStreams } from '../lessons/features/change-streams/lesson.ts';
 import type { FeatureId, StreamOptions } from '../lessons/features/types.ts';
 /** Registration order is navigation order. Metadata belongs to each lesson. */
@@ -38,6 +40,9 @@ export const modelingLessons = {
 export const featureLessons = {
   changeStreams,
 };
+export const useCaseLessons = {
+  odl,
+};
 export const modelingIds = Object.keys(modelingLessons) as ModelingId[];
 export function lessonIds(topology: Topology): LessonId[] {
   return (Object.keys(architectureLessons) as LessonId[]).filter((id) =>
@@ -57,4 +62,8 @@ export function buildModelingLesson(id: ModelingId, mode: ReferenceMode = 'appli
 export const featureIds = Object.keys(featureLessons) as FeatureId[];
 export function buildFeatureLesson(id: FeatureId, options?: StreamOptions) {
   return featureLessons[id].build(options);
+}
+export const useCaseIds = Object.keys(useCaseLessons) as UseCaseId[];
+export function buildUseCaseLesson(id: UseCaseId, level?: OdlLevel) {
+  return useCaseLessons[id].build(level);
 }

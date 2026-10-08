@@ -89,7 +89,8 @@
   line-height: 1.8;
   color: #8a9980;
 }
-.features-stage.has-inspector .event-panel {
+.features-stage.has-inspector .event-panel,
+.use-cases-stage.has-inspector .event-panel {
   display: none;
 }
 .oplog-slot-label {
@@ -183,8 +184,177 @@
   }
 }
 /* Sit above the playback card, whatever its height. */
-.features-stage .command-panel {
+.features-stage .command-panel,
+.use-cases-stage .command-panel {
   bottom: calc(var(--playback-reserved, 260px) + 12px);
   max-height: calc(100% - var(--playback-reserved, 260px) - 72px);
   overflow: auto;
+}
+/* Use cases: value panel sections and the ODL level note. */
+.value-panel {
+  width: 340px;
+}
+.value-section {
+  padding-top: 14px;
+}
+.value-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 18px;
+}
+.value-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid #e9eee2;
+  font-size: 11px;
+  color: #5f7457;
+}
+.value-list li:first-child {
+  border-top: 0;
+}
+.value-list code {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #3b5b40;
+}
+.value-list span {
+  color: #8a9980;
+}
+.value-list.unlocked li {
+  justify-content: flex-start;
+  color: #3b6b45;
+}
+.value-list.unlocked svg {
+  flex-shrink: 0;
+  color: #3b9462;
+}
+.value-list.unlocked span {
+  color: inherit;
+}
+.value-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 14px 12px 0;
+}
+.value-metrics div {
+  background: #f5f8ef;
+  border: 1px solid #e1e9d9;
+  border-radius: 7px;
+  padding: 9px 10px;
+}
+.value-metrics span {
+  display: block;
+  font-size: 9px;
+  color: #97a38a;
+  margin-bottom: 4px;
+}
+.value-metrics strong {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 500;
+  color: #4d7d45;
+}
+.level-note {
+  color: #8c9a83;
+}
+@media (max-width: 1100px) {
+  .value-panel {
+    width: 300px;
+  }
+}
+@media (max-width: 800px) {
+  .value-panel {
+    width: min(300px, calc(100% - 26px));
+  }
+  .read-settings > .level-note {
+    display: none;
+  }
+  .use-cases-stage .scene-intro p {
+    display: none;
+  }
+}
+/* Use cases: keep the open code panel short so it stays clear of the source systems. */
+.use-cases-stage .command-panel {
+  max-height: min(140px, calc(100% - var(--playback-reserved, 260px) - 72px));
+}
+/* Value panel: headline numbers first, long JSON lines wrap instead of clipping. */
+.value-metrics.top {
+  margin: 4px 12px 6px;
+}
+.value-panel .event-line {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.value-panel .event-json code {
+  min-width: 0;
+}
+@media (max-width: 1100px) {
+  .use-cases-stage .scene-intro p {
+    display: none;
+  }
+}
+/* Source load: green = protected, amber = busy, red = overloaded. */
+.label-value.load-low {
+  background: #dcf1e2;
+  color: #2b7a4b;
+}
+.label-value.load-mid {
+  background: #fbebcf;
+  color: #94610f;
+}
+.label-value.load-high {
+  background: #f8d9d3;
+  color: #a2382a;
+  font-weight: 600;
+}
+.value-metrics .load-low {
+  background: #eaf6ee;
+  border-color: #c5e5cf;
+}
+.value-metrics .load-mid {
+  background: #fdf3df;
+  border-color: #f0d8a8;
+}
+.value-metrics .load-high {
+  background: #fbe6e1;
+  border-color: #efbdb2;
+}
+.value-metrics .load-low strong,
+.version-grid .load-low strong {
+  color: #2b7a4b;
+}
+.value-metrics .load-mid strong,
+.version-grid .load-mid strong {
+  color: #94610f;
+}
+.value-metrics .load-high strong,
+.version-grid .load-high strong {
+  color: #a2382a;
+}
+.value-metrics em,
+.version-grid em {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+  font-style: normal;
+  color: #8a9980;
+}
+.version-grid .load-low {
+  background: #eaf6ee;
+}
+.version-grid .load-mid {
+  background: #fdf3df;
+}
+.version-grid .load-high {
+  background: #fbe6e1;
+}
+.scene-legend .legend-load i {
+  width: 22px;
+  height: 7px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #39a978, #e8a65a 55%, #d9534f);
 }

@@ -5,6 +5,7 @@ Start with a question the learner should be able to answer, then choose the mode
 - **Data modeling** uses documents, collection trays, relationships, query results, and optional workload/index displays.
 - **Architecture** uses processes, replica-set state, routing metadata, and flows between nodes.
 - **Features** follow one capability end to end with a purpose-built model and scene (currently change streams).
+- **Use cases** combine capabilities into an outcome, such as sources feeding a shared layer that unlocks new consumers (currently the operational data layer).
 
 The models are deliberately separate. They share playback, step identity, and snapshot ownership, not one universal database simulator.
 
@@ -20,6 +21,7 @@ The models are deliberately separate. They share playback, step identity, and sn
 | An operation with a configurable read concern | `src/lessons/architecture/secondary-reads/`  |
 | Routing metadata and per-node annotations     | `src/lessons/architecture/config-servers/`   |
 | A capability with its own scene and options   | `src/lessons/features/change-streams/`       |
+| An outcome built from several capabilities    | `src/lessons/use-cases/odl/`                 |
 
 Paths are relative to this app directory.
 
@@ -124,6 +126,15 @@ Feature lessons live under `src/lessons/features/<name>/` and register in `featu
 - The scene (`src/scenes/features/ChangeStreamScene.ts`) draws snapshots; it never mutates them. The Event panel and inspector are React, so event JSON stays selectable and readable.
 
 Tests should cover the MongoDB claim: which events a pipeline lets through, what an update event contains with and without `updateLookup`, and when a resume token stops being usable.
+
+## Add a use-case lesson
+
+Use cases live under `src/lessons/use-cases/<name>/` and register in `useCaseLessons`; the Use cases tab, sidebar and mobile picker derive from that registry. They follow the feature-lesson pattern (`operations.ts` for pure behavior, `builder.ts` for before/after snapshots, a typed build option such as the ODL `level`), with these additions:
+
+- The scene introduces parts as the lesson reaches them (`layers` in the model), so early steps can show the problem before the solution. Keep hidden parts out of hit testing: raycasting ignores `visible`, so `OdlScene` checks the owning group.
+- Value is state, not just text: consumers have an `unlocked` flag, sources carry an illustrative `load`, and `integrations` changes when the hub is live. Tests should assert these, for example that load falls with every unlock and that unlocking before the data is unified throws.
+- Keep each source's change in the format that system speaks (JSON, relational change record, XML) and show it unmodified next to the resulting document.
+- Source and consumer labels stay two lines tall because they stack in columns.
 
 ## Describe the scene
 

@@ -15,6 +15,7 @@ import {
   Settings2,
   Shapes,
   ShieldCheck,
+  Workflow,
 } from 'lucide-react';
 import type { LessonIcon } from '../learning/types.ts';
 export const lessonIcons = {
@@ -33,4 +34,5 @@ export const lessonIcons = {
   pointer: MousePointer2,
   index: ListTree,
   stream: Radio,
+  workflow: Workflow,
 } satisfies Record<LessonIcon, typeof Database>;

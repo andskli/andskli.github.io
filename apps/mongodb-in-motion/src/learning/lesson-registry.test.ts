@@ -4,6 +4,7 @@ import {
   architectureLessons,
   featureLessons,
   modelingLessons,
+  useCaseLessons,
 } from './lesson-registry.ts';
 
 test('registered lessons have unique stable steps and every shortcut resolves for every option', () => {
@@ -33,6 +34,17 @@ test('registered lessons have unique stable steps and every shortcut resolves fo
           id,
         );
       }
+  }
+  for (const [id, definition] of Object.entries(useCaseLessons)) {
+    assert.equal(definition.id, id);
+    for (const level of ['read-only', 'enriched', 'read-write'] as const) {
+      const lesson = definition.build(level);
+      assert.ok(lesson.steps.length > 0);
+      assert.equal(
+        new Set(lesson.steps.map((step) => step.id)).size,
+        lesson.steps.length,
+      );
+    }
   }
   for (const [id, definition] of Object.entries(modelingLessons)) {
     assert.equal(definition.id, id);

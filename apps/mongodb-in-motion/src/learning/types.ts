@@ -25,4 +25,5 @@ export type LessonIcon =
   | 'reference'
   | 'pointer'
   | 'index'
-  | 'stream';
+  | 'stream'
+  | 'workflow';

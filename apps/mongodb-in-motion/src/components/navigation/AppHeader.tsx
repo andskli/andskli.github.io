@@ -1,4 +1,14 @@
-import { Box, Boxes, Braces, Info, Layers, Network, Radio } from 'lucide-react';
+import {
+  Box,
+  Boxes,
+  Braces,
+  Info,
+  Layers,
+  Network,
+  Radio,
+  Sparkles,
+  Workflow,
+} from 'lucide-react';
 import type { MainSection } from '../../app/sections.ts';
 import { topologyNames } from '../../app/sections.ts';
 interface Props {
@@ -16,10 +26,15 @@ const tabs: { id: MainSection; label: string; short: string; Icon: typeof Box }[
   { id: 'replica', label: topologyNames.replica, short: 'Replica', Icon: Layers },
   { id: 'sharded', label: topologyNames.sharded, short: 'Sharded', Icon: Network },
   { id: 'features', label: 'Features', short: 'Features', Icon: Radio },
+  { id: 'use-cases', label: 'Use cases', short: 'Use cases', Icon: Workflow },
 ];
-const inspectLabels: Record<'modeling' | 'features' | 'architecture', string> = {
+const inspectLabels: Record<
+  'modeling' | 'features' | 'use-cases' | 'architecture',
+  string
+> = {
   modeling: 'Documents',
   features: 'Event',
+  'use-cases': 'Value',
   architecture: 'Components',
 };
 export default function AppHeader({
@@ -31,9 +46,15 @@ export default function AppHeader({
   onAbout,
 }: Props) {
   const inspectKind =
-    section === 'modeling' || section === 'features' ? section : 'architecture';
-  const InspectIcon =
-    inspectKind === 'architecture' ? Boxes : inspectKind === 'features' ? Radio : Braces;
+    section === 'modeling' || section === 'features' || section === 'use-cases'
+      ? section
+      : 'architecture';
+  const InspectIcon = {
+    architecture: Boxes,
+    features: Radio,
+    'use-cases': Sparkles,
+    modeling: Braces,
+  }[inspectKind];
   return (
     <header className="app-header">
       <a
