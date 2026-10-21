@@ -264,9 +264,8 @@ db.customers.find({ segment: "Gold" })`,
   };
 }
 
-export const lesson: UseCaseDefinition = {
+export const lesson: UseCaseDefinition<OdlLevel, OdlLesson> = {
   ...metadata,
   icon: 'workflow',
-  levelOption: true,
   build,
 };

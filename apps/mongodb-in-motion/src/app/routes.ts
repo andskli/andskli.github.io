@@ -8,12 +8,15 @@ import {
 import type { Concern } from '../lessons/architecture/types.ts';
 import type { ReferenceMode } from '../lessons/data-modeling/types.ts';
 import type { FilterMode, FullDocumentMode } from '../lessons/features/types.ts';
+import type { EmbeddingMode, RetrievalMode } from '../lessons/use-cases/rag/types.ts';
 import type { OdlLevel } from '../lessons/use-cases/types.ts';
 import type { MainSection } from './sections.ts';
 
 /** Option presets a deep link can pin. Only the active section's keys are read. */
 export interface RouteOptions {
   level?: OdlLevel;
+  retrieval?: RetrievalMode;
+  embedding?: EmbeddingMode;
   fullDocument?: FullDocumentMode;
   filter?: FilterMode;
   concern?: Concern;
@@ -34,6 +37,8 @@ const SECTIONS: MainSection[] = [
   'use-cases',
 ];
 const LEVELS: OdlLevel[] = ['read-only', 'enriched', 'read-write'];
+const RETRIEVALS: RetrievalMode[] = ['vector', 'filtered', 'hybrid'];
+const EMBEDDINGS: EmbeddingMode[] = ['auto', 'byo'];
 const FULL_DOCUMENT: FullDocumentMode[] = ['default', 'updateLookup'];
 const FILTERS: FilterMode[] = ['none', 'inserts', 'open'];
 const CONCERNS: Concern[] = ['local', 'majority'];
@@ -41,6 +46,8 @@ const MODES: ReferenceMode[] = ['application', 'lookup'];
 /** Defaults are omitted from the hash so shareable links stay short. */
 const DEFAULTS = {
   level: 'enriched',
+  retrieval: 'vector',
+  embedding: 'auto',
   fullDocument: 'default',
   filter: 'none',
   concern: 'majority',
@@ -73,6 +80,10 @@ function parseOptions(section: MainSection, params: URLSearchParams): RouteOptio
   if (section === 'use-cases') {
     const level = pick('level', LEVELS);
     if (level && level !== DEFAULTS.level) options.level = level;
+    const retrieval = pick('retrieval', RETRIEVALS);
+    if (retrieval && retrieval !== DEFAULTS.retrieval) options.retrieval = retrieval;
+    const embedding = pick('embedding', EMBEDDINGS);
+    if (embedding && embedding !== DEFAULTS.embedding) options.embedding = embedding;
   } else if (section === 'features') {
     const fullDocument = pick('fullDocument', FULL_DOCUMENT);
     if (fullDocument && fullDocument !== DEFAULTS.fullDocument)
@@ -115,6 +126,10 @@ export function formatRoute(route: Route): string {
   if (route.section === 'use-cases') {
     if (options.level && options.level !== DEFAULTS.level)
       params.set('level', options.level);
+    if (options.retrieval && options.retrieval !== DEFAULTS.retrieval)
+      params.set('retrieval', options.retrieval);
+    if (options.embedding && options.embedding !== DEFAULTS.embedding)
+      params.set('embedding', options.embedding);
   } else if (route.section === 'features') {
     if (options.fullDocument && options.fullDocument !== DEFAULTS.fullDocument)
       params.set('fullDocument', options.fullDocument);

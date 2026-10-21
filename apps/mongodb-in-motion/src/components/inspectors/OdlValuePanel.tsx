@@ -20,7 +20,7 @@ export function compactJson(value: unknown) {
     );
 }
 
-function Code({ text }: { text: string }) {
+export function Code({ text }: { text: string }) {
   return (
     <pre className="event-json">
       <code>

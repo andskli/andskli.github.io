@@ -42,6 +42,14 @@ test('step ids and option presets are parsed from the link', () => {
       filter: 'inserts',
     },
   );
+  assert.deepEqual(parseRoute('#/use-cases/rag/vector-search?retrieval=hybrid').options, {
+    retrieval: 'hybrid',
+  });
+  assert.equal(parseRoute('#/use-cases/rag').lesson, 'rag');
+  assert.deepEqual(parseRoute('#/use-cases/rag?embedding=byo&embedding=x').options, {
+    embedding: 'byo',
+  });
+  assert.deepEqual(parseRoute('#/use-cases/rag?embedding=auto').options, {});
   assert.deepEqual(parseRoute('#/replica/secondary?concern=local').options, {
     concern: 'local',
   });
@@ -52,6 +60,8 @@ test('step ids and option presets are parsed from the link', () => {
 
 test('default option values are omitted and unknown values ignored', () => {
   assert.deepEqual(parseRoute('#/use-cases/odl?level=enriched').options, {});
+  assert.deepEqual(parseRoute('#/use-cases/rag?retrieval=vector').options, {});
+  assert.deepEqual(parseRoute('#/use-cases/rag?retrieval=bm25').options, {});
   assert.deepEqual(parseRoute('#/features/changeStreams?fullDocument=wat').options, {});
   assert.equal(
     formatRoute({

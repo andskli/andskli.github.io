@@ -347,3 +347,44 @@
   border-radius: 4px;
   background: linear-gradient(90deg, #39a978, #e8a65a 55%, #d9534f);
 }
+/* RAG value panel: tint each field of the chunk document by the job it does. */
+.event-line.field-text {
+  box-shadow: inset 3px 0 #d99243;
+}
+.event-line.field-meta {
+  box-shadow: inset 3px 0 #789ac4;
+}
+.event-line.field-vector {
+  color: #f1e6ff;
+  background: #9475be40;
+  box-shadow: inset 3px 0 #9475be;
+}
+.field-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 8px 18px 0;
+  font-size: 10px;
+  color: #8a9980;
+}
+.field-key i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 5px;
+  border-radius: 2px;
+  vertical-align: -1px;
+}
+.field-managed {
+  margin: 8px 12px 0;
+  padding: 8px 10px;
+  border: 1px dashed #9475be;
+  border-radius: 6px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #6c5a8a;
+}
+/* Keep use-case side panels above the playback card, whose height varies with options. */
+.use-cases-stage .value-panel {
+  max-height: calc(100% - var(--playback-reserved, 235px) - 40px);
+}

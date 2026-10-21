@@ -76,18 +76,26 @@ export interface OdlModel {
   integrations: number;
   event: string;
 }
-export interface OdlFlow {
-  from: Part;
-  to: Part;
-  kind: 'cdc' | 'batch' | 'read' | 'write' | 'direct';
+export type OdlFlow = UseCaseFlow<Part, 'cdc' | 'batch' | 'read' | 'write' | 'direct'>;
+/** A message moving between two parts of a use-case scene. */
+export interface UseCaseFlow<P extends string = string, K extends string = string> {
+  from: P;
+  to: P;
+  kind: K;
   label: string;
 }
-export interface OdlStep extends LessonStep<OdlModel> {
+/** Every use-case step carries example code, the flows it animates and what to focus. */
+export interface UseCaseStep<
+  State,
+  P extends string,
+  F extends UseCaseFlow<P>,
+> extends LessonStep<State> {
   code: string;
-  flows: OdlFlow[];
-  focus: Part[];
+  flows: F[];
+  focus: P[];
 }
-export interface OdlLesson {
+/** What the shared use-case stage needs from any lesson, whatever it models. */
+export interface UseCaseLesson<Step> {
   id: string;
   number: string;
   name: string;
@@ -97,9 +105,10 @@ export interface OdlLesson {
   collection: string;
   takeaway: string;
   source: string;
-  steps: OdlStep[];
+  steps: Step[];
 }
-export interface UseCaseDefinition {
+/** Navigation metadata plus a builder; the option type is specific to each lesson. */
+export interface UseCaseDefinition<Options, Lesson> {
   id: string;
   number: string;
   name: string;
@@ -109,7 +118,7 @@ export interface UseCaseDefinition {
   collection: string;
   source: string;
   icon: LessonIcon;
-  /** Show the ODL level selector for this lesson. */
-  levelOption?: boolean;
-  build: (level?: OdlLevel) => OdlLesson;
+  build: (options?: Options) => Lesson;
 }
+export type OdlStep = UseCaseStep<OdlModel, Part, OdlFlow>;
+export type OdlLesson = UseCaseLesson<OdlStep>;

@@ -15,7 +15,8 @@ import { lesson as polymorphism } from '../lessons/data-modeling/polymorphism/le
 import { lesson as references } from '../lessons/data-modeling/references/lesson.ts';
 import type { ModelingId, ReferenceMode } from '../lessons/data-modeling/types.ts';
 import { lesson as odl } from '../lessons/use-cases/odl/lesson.ts';
-import type { OdlLevel, UseCaseId } from '../lessons/use-cases/types.ts';
+import { lesson as rag } from '../lessons/use-cases/rag/lesson.ts';
+import type { UseCaseId } from '../lessons/use-cases/types.ts';
 import { lesson as changeStreams } from '../lessons/features/change-streams/lesson.ts';
 import type { FeatureId, StreamOptions } from '../lessons/features/types.ts';
 /** Registration order is navigation order. Metadata belongs to each lesson. */
@@ -42,6 +43,7 @@ export const featureLessons = {
 };
 export const useCaseLessons = {
   odl,
+  rag,
 };
 export const modelingIds = Object.keys(modelingLessons) as ModelingId[];
 export function lessonIds(topology: Topology): LessonId[] {
@@ -64,6 +66,3 @@ export function buildFeatureLesson(id: FeatureId, options?: StreamOptions) {
   return featureLessons[id].build(options);
 }
 export const useCaseIds = Object.keys(useCaseLessons) as UseCaseId[];
-export function buildUseCaseLesson(id: UseCaseId, level?: OdlLevel) {
-  return useCaseLessons[id].build(level);
-}

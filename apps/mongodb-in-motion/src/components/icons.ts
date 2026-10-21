@@ -1,6 +1,7 @@
 import {
   ArrowDownLeft,
   Boxes,
+  BrainCircuit,
   Braces,
   Database,
   GitBranch,
@@ -35,4 +36,5 @@ export const lessonIcons = {
   index: ListTree,
   stream: Radio,
   workflow: Workflow,
+  rag: BrainCircuit,
 } satisfies Record<LessonIcon, typeof Database>;
