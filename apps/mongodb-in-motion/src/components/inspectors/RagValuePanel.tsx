@@ -85,20 +85,34 @@ export default function RagValuePanel({ state }: { state: RagModel }) {
               <i style={{ background: '#789ac4' }} />
               metadata: filtered
             </span>
-            {!auto && (
-              <span>
-                <i style={{ background: '#9475be' }} />
-                vector: searched
-              </span>
-            )}
+            <span>
+              <i style={{ background: '#9475be' }} />
+              vector: searched
+            </span>
           </div>
           {auto && (
-            <p className="field-managed">
-              <Sparkles size={11} />{' '}
-              {indexed
-                ? `Vectors made by Voyage AI (${AUTO_MODEL}) inside Atlas, kept in a system-managed collection and re-synced on every write.`
-                : 'No vectors yet. An autoEmbed index will have Voyage AI embed the text field.'}
-            </p>
+            <div className="field-managed">
+              <Sparkles size={11} /> Managed by Atlas · {AUTO_MODEL} (illustrative)
+              {indexed && state.managed[sample._id] ? (
+                <pre className="event-json">
+                  <code>
+                    <span className="event-line">{`{ "_id": "${sample._id}",`}</span>
+                    <span className="event-line field-vector">
+                      {`  "embedding": [${state.managed[sample._id].join(', ')}] }`}
+                    </span>
+                  </code>
+                </pre>
+              ) : (
+                <p>
+                  No vectors yet. An autoEmbed index will have Voyage AI embed the text
+                  field.
+                </p>
+              )}
+              <p>
+                Kept in a system-managed collection and re-synced on every write. You
+                never write or read it.
+              </p>
+            </div>
           )}
         </>
       ) : (

@@ -388,3 +388,9 @@
 .use-cases-stage .value-panel {
   max-height: calc(100% - var(--playback-reserved, 235px) - 40px);
 }
+.field-managed .event-json {
+  margin: 6px 0;
+}
+.field-managed p {
+  margin: 4px 0 0;
+}

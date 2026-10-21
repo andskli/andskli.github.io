@@ -267,6 +267,16 @@ export default function RagInspector({
                   <pre className="event-json">
                     <code>{compactJson(chunkDocument(state.stored[0]))}</code>
                   </pre>
+                  {state.embedding === 'auto' && state.managed[state.stored[0]._id] && (
+                    <>
+                      <h3>Managed vector (illustrative)</h3>
+                      <pre className="event-json">
+                        <code>
+                          {`{ _id: "${state.stored[0]._id}",\n  embedding: [${state.managed[state.stored[0]._id].join(', ')}] }`}
+                        </code>
+                      </pre>
+                    </>
+                  )}
                   <p className="data-caption">
                     {state.embedding === 'auto'
                       ? `Vectors: Voyage AI ${AUTO_MODEL}, managed and synced by Atlas.`

@@ -171,7 +171,10 @@ chunks.forEach((c, i) => (c.embedding = data[i].embedding))`,
   text: "Notes not syncing on iOS or Android? ...",   // quoted, and embedded by Atlas
   updatedAt: ISODate("2026-09-02")
 }
-// Vectors: generated with ${AUTO_MODEL}, stored and synced by Atlas.
+
+// Managed by Atlas (system collection), generated with ${AUTO_MODEL}.
+// You never write or read this; shown here for illustration.
+{ _id: "kb-101#1", embedding: [0.03, 0.2, 0.82, 0.55] }
 
 // Instead of: source DB -> ETL -> embedding service -> vector DB
 //             + a CDC job for updates and deletes, + reconciliation`

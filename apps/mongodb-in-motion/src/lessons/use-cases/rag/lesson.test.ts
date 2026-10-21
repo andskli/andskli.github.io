@@ -170,6 +170,9 @@ test('automated embedding keeps vectors out of the app and out of the document',
   assert.equal(asked.queryVector, null);
   assert.ok(asked.question);
   assert.match(step(steps, 'semantic-search').code, /query: question/);
+  const doc = step(steps, 'one-document-no-pipeline');
+  assert.match(doc.code, /Managed by Atlas[\s\S]*embedding: \[/);
+  assert.ok(doc.after.stored.every((c) => c.embedding === undefined));
 });
 
 test('bring-your-own stores the vector in the same document', () => {
